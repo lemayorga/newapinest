@@ -1,13 +1,19 @@
 import { ConfigService } from '@nestjs/config';
 import { Sequelize, SequelizeOptions, } from 'sequelize-typescript';
 import { EnvCofigName } from 'src/config/environment.validation';
-import { PROVIDERS_NAMES } from 'src/core';
 import { models as modelsCommun } from './models/commun';
 import { models as modelSecurity } from "./models/security";
+import { dataBaseConfig } from './database.config';
+
+export const PROVIDER_NAMES = {
+  SEQUELIZE: 'SEQUELIZE',
+}
+
+
 
 export const databaseProviders = [
   {
-    provide: PROVIDERS_NAMES.SEQUELIZE,
+    provide: PROVIDER_NAMES.SEQUELIZE,
     inject: [
       ConfigService
     ], //no worries for imports because you're using a global module
@@ -27,8 +33,13 @@ export const databaseProviders = [
             timestamps: false
         }
       };
-
-      const sequelize = new Sequelize(config);
+      
+       const sequelize = new Sequelize(config);
+       
+     //  const sequelize = new Sequelize(dataBaseConfig);
+      
+     console.log(sequelize)
+     console.log(dataBaseConfig)
 
       sequelize.addModels([
         ...modelsCommun,
@@ -36,9 +47,9 @@ export const databaseProviders = [
       ]);
 
 
-      sequelize.authenticate().
-      then(function(){ console.log("test database connected ...")  }).
-      catch(function(error){console.log("Database catch block : "+ error) });
+      sequelize.authenticate()
+          .then(function(){ console.log("test database connected ...")  })
+          .catch(function(error){console.log("Database catch block : "+ error) });
 
       return sequelize;
     },

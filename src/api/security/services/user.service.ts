@@ -1,7 +1,7 @@
-import { genSalt, hash, compare } from 'bcrypt';
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
-import { PROVIDERS_NAMES }from 'src/core';
+import { PROVIDER_NAMES } from '../security.provider';
+import { encryptText, compareEncryptText} from 'src/utils';
 import { RepoResult, RepoError, RequestResult } from 'src/api/shared/models';
 import { RepositoryCrudService } from 'src/api/shared/services';
 import { User } from 'src/database/models/security';
@@ -11,7 +11,7 @@ import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '..
 export class UserService  extends RepositoryCrudService<User, UserDto, UserCreateDto , UserUpdateDto> {
 
   constructor(
-    @Inject(PROVIDERS_NAMES.SECURITY_USER) private readonly repository: typeof User
+    @Inject(PROVIDER_NAMES.SECURITY_USER) private readonly repository: typeof User
   ){
     super(User);
   }
@@ -44,7 +44,7 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
         } as any);
       }
 
-      data.password = await this.encryptPassword(data.password);
+      data.password = await encryptText (data.password); //encryptPassword
 
       const model =  await this.repository.create(data,{ returning: true, raw : true , nest : true });
       const result : UserDto = {
@@ -96,18 +96,18 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
       }
 
       if(comparePasswords) {
-        const passwordValid  = await compare(currentPassword, user.password);
+        const passwordValid  = await compareEncryptText(currentPassword, user.password);
         if (!passwordValid) {
             throw new HttpException('Invalid email or password.', HttpStatus.BAD_REQUEST);
         }
       }
 
-      const isEqualNewPassworAndOldPassword  = await compare(newPassword, user.password);
+      const isEqualNewPassworAndOldPassword  = await compareEncryptText(newPassword, user.password);
       if(isEqualNewPassworAndOldPassword){
           throw new HttpException('The new password cannot be identical to the existing password.', HttpStatus.BAD_REQUEST);
       }
 
-      const newPasswordEncript = await this.encryptPassword(newPassword);
+      const newPasswordEncript = await encryptText(newPassword); //encryptPassword
       user.password =  newPasswordEncript;
 
       const model = await user.save();
@@ -120,12 +120,5 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
-
-  private async encryptPassword(password: string){
-    const salt = await genSalt(10);
-    return await hash(password, salt);
-  }
 }
 
-
-// https://github.com/kentloog/nestjs-sequelize-typescript/blob/master/src/users/users.service.ts

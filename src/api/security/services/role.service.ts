@@ -1,17 +1,17 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { PROVIDERS_NAMES } from 'src/core';
+import { Op } from 'sequelize';
+import { PROVIDER_NAMES } from '../security.provider';
 import { RepoResult, RepoError, RequestResult } from 'src/api/shared/models';
 import { RepositoryCrudService } from 'src/api/shared/services';
 import { Role, User, UsersRoles } from 'src/database/models/security';
 import { RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
-import { Op } from 'sequelize';
 
 @Injectable()
 export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto , RolUpdateDto> {
 
   constructor(
-    @Inject(PROVIDERS_NAMES.SECURITY_ROLE) private readonly repositoryRole: typeof Role,
-    @Inject(PROVIDERS_NAMES.SECURITY_USERS_IN_ROLES) private readonly repositoryRoleUsersRoles: typeof UsersRoles
+    @Inject(PROVIDER_NAMES.SECURITY_ROLE) private readonly repositoryRole: typeof Role,
+    @Inject(PROVIDER_NAMES.SECURITY_USERS_IN_ROLES) private readonly repositoryRoleUsersRoles: typeof UsersRoles
   ){
     super(Role);
   }

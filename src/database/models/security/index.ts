@@ -1,6 +1,6 @@
-import { Role } from "./role.model";
-import { User } from "./user.model";
-import { UsersRoles } from "./users_roles.model";
+import { Role } from "./role.entity";
+import { User } from "./user.entity";
+import { UsersRoles } from "./users_roles.entity";
 
 export  const models = [
     UsersRoles,

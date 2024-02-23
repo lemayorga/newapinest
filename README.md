@@ -16,23 +16,42 @@ npm install
 ```
 npm i -g @nestjs/cli
 ```
+4. Clonar el archivo __.env.template__ y renombrar la copa a __.env__
 
-4. Levantar la base de datos
+5. Llenar las variables de entorno defindas
+en el __.env__
+
+6. Levantar la base de datos
 ```
 docker-compose up -d
 ```
-5. Clonar el archivo __.env.template__ y renombrar la copa a __.env__
 
-6. Llenar las variables de entorno defindas
-en el __.env__
+7. Ejecutar las migraciones
+```
+npm run migrate up
+```
+8. Ejecutar los seeders
+```
+npm run migrate seed
+```
 
-7. Ejecutar la aplicación en dev:
+9. Ejecutar la aplicación en dev:
 ```
    npm run start:dev
 ```
-8. Reconstruir la base de datos 
+<!-- 10. Reconstruir la base de datos 
 ```
  Ejecutar script src\database\scripts\*.sql
+``` -->
+# Crear un nuevo archivo migracion
+```
+   npm run  migrate:create --name="migration.{{nombre_definir}}.ts"
+
+```
+# Crear un nuevo archivo seed
+```
+   npm run  seed:create --name="seed.{{nombre_definir}}.ts"
+
 ```
 # Construir la imagen
 ```

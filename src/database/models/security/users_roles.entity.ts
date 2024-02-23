@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { User } from './user.model';
-import { Role } from './role.model';
+import { User } from './user.entity';
+import { Role } from './role.entity';
 
 
 @Table({ schema: 'security',  modelName: 'usersroles' })

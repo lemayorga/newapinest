@@ -1,13 +1,18 @@
-import { PROVIDERS_NAMES } from 'src/core';
 import { Catalogue, Company } from "src/database/models/commun";
+
+export const PROVIDER_NAMES = {
+    COMMUN_CATALOGUE:  'COMMUN_CATALOGUE',
+    COMMUN_COMPANY: 'COMMUN_COMPANY',
+}
+
 
 export const CommunProviders = [
     {
-        provide: PROVIDERS_NAMES.COMMUN_CATALOGUE,
+        provide: PROVIDER_NAMES.COMMUN_CATALOGUE,
         useValue: Catalogue,
     },
     {
-        provide: PROVIDERS_NAMES.COMMUN_COMPANY,
+        provide: PROVIDER_NAMES.COMMUN_COMPANY,
         useValue: Company,
     },
 ];

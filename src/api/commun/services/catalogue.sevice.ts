@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PROVIDERS_NAMES } from 'src/core';
+import { PROVIDER_NAMES } from '../commun.provider';
 import { Catalogue } from 'src/database/models/commun';
 import { RepositoryCrudService } from 'src/api/shared/services/base_crud.service';
 import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from '../dtos';
@@ -7,7 +7,7 @@ import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from '../dtos';
 @Injectable()
 export class CatalogueService extends RepositoryCrudService<Catalogue, CatalogueDto, CatalogueCreateDto, CatalogueUpdateDto> {
     constructor(
-      @Inject(PROVIDERS_NAMES.COMMUN_CATALOGUE) private readonly repository: typeof Catalogue
+      @Inject(PROVIDER_NAMES.COMMUN_CATALOGUE) private readonly repository: typeof Catalogue
     ){
      super(Catalogue);
     }

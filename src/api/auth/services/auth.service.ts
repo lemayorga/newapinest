@@ -68,20 +68,3 @@ export class AuthService {
   }
 
 }
-
-// https://www.devxperiences.com/pzwp1/2022/03/19/jwt-and-passport-jwt-strategy-for-your-nestjs-rest-api-project/
-
-// https://github.com/kentloog/nestjs-sequelize-typescript/blob/master/src/users/users.service.ts
-
-// https://shpota.com/2022/07/16/role-based-authorization-with-jwt-using-nestjs.html
-
-// https://blog.stackademic.com/passport-jwt-authentication-in-nestjs-e3313d04de49
-
-// https://blog.logrocket.com/how-to-implement-jwt-authentication-nestjs/
-
-// https://www.devxperiences.com/pzwp1/2022/03/19/jwt-and-passport-jwt-strategy-for-your-nestjs-rest-api-project/
-
-
-// https://docs.nestjs.com/security/authentication
-// https://codigoencasa.com/autenticacion-jwt-de-nestjs/
-// https://www.google.com/search?q=facebook&rlz=1C1CHZN_enNI1017NI1017&oq=fa&gs_lcrp=EgZjaHJvbWUqBwgEEAAYjwIyBggAEEUYOTIGCAEQRRg7MgYIAhBFGDsyBggDEEUYOzIHCAQQABiPAjIGCAUQRRg8MgYIBhBFGD0yBggHEEUYPNIBCDM1NjZqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8

@@ -24,6 +24,3 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy,'jwt-refresh
     return { ...payload, refreshToken };
   }
 }
-
-// https://medium.com/@rahulrulz680/manage-role-based-authorization-using-guards-in-nestjs-34b3be412e50
-// https://www.elvisduru.com/blog/nestjs-jwt-authentication-refresh-token
