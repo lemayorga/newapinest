@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { Column, Model, Table, BelongsToMany } from 'sequelize-typescript';
-import { Role } from './role.model';
-import { UsersRoles } from './users_roles.model';
+import { Role } from './role.entity';
+import { UsersRoles } from './users_roles.entity';
 
 
 @Table({ schema: 'security',  modelName: 'user' })

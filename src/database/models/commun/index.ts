@@ -1,7 +1,7 @@
-import { Catalogue } from './catalogue.model';
-import { Company } from './company.model';
+import { Catalogue } from './catalogue.entity';
+import { Company } from './company.entity';
 
-export  const models = [
+export const models = [
     Catalogue,
     Company
 ];

@@ -7,8 +7,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Commun API')
+    .setDescription('Implemente API with nestjs')
     .setVersion('1.0')
     // .setBasePath('api')
     .build();
