@@ -1,4 +1,5 @@
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
+import 'dotenv/config';
 
 export const dataBaseConfig: SequelizeModuleOptions = {
     dialect: 'postgres',

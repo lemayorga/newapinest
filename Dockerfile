@@ -34,5 +34,3 @@ COPY --from=BUILDER  /app-node/node_modules ./node_modules
 CMD [ "npm", "start" ]
 
 
-
-# https://www.tomray.dev/nestjs-docker-production

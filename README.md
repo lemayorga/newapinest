@@ -2,7 +2,7 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
   <a href="https://www.postgresql.org/" target="blank"><img src="https://www.svgrepo.com/show/303301/postgresql-logo.svg" width="200" alt="Postgresql Logo" /></a>
-    <a href="https://sequelize.org/" target="blank"><img src="https://brandslogos.com/wp-content/uploads/images/large/sequelize-logo-vector.svg" width="160" alt="Sequelize Logo" /></a>
+   <a href="https://sequelize.org/" target="blank"><img src="https://brandslogos.com/wp-content/uploads/images/large/sequelize-logo-vector.svg" width="160" alt="Sequelize Logo" /></a>
 </p>
 
 # Ejecutar en desarrollo
@@ -77,3 +77,4 @@ npm run migrate seed
 * Postgres
 * Nest js
 * Sequelize 
+* Handlebars

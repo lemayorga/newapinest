@@ -8,7 +8,11 @@ export class MailService {
 
     constructor(private mailerService: MailerService) {}
 
-
+    /**
+     * Send email 
+     * @mailOptions  {MailOptions} options with data about insert html email 
+     * @return   Promise<SentMessageInfo | boolean> 
+     */
     async sendEmail(mailOptions: MailOptions): Promise<SentMessageInfo | boolean> {
       try{
           return await this.mailerService.sendMail(mailOptions);
@@ -18,6 +22,3 @@ export class MailService {
       }
     }
 }
-
-// https://notiz.dev/blog/send-emails-with-nestjs#install-dependencies
-// https://handlebarsjs.com/installation/#npm-or-yarn-recommended

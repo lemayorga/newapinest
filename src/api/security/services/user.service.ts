@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/c
 import { Op } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
 import { encryptText, compareEncryptText} from 'src/utils';
-import { RepoResult, RepoError, RequestResult } from 'src/api/shared/models';
-import { RepositoryCrudService } from 'src/api/shared/services';
+import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
+import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
 import { User } from 'src/database/models/security';
 import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
 
@@ -11,7 +11,8 @@ import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '..
 export class UserService  extends RepositoryCrudService<User, UserDto, UserCreateDto , UserUpdateDto> {
 
   constructor(
-    @Inject(PROVIDER_NAMES.SECURITY_USER) private readonly repository: typeof User
+    @Inject(PROVIDER_NAMES.SECURITY_USER) private readonly repository: typeof User,
+    private paginationService: PaginationService
   ){
     super(User);
   }
@@ -120,5 +121,43 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
+
+  public async paginate(options: PageOptionsDto, order_by?: string) {
+    let paginationOptions: PageMeta = new PageMeta(options.take, options.page);
+
+     if (options.searchs) {
+       paginationOptions.searchs = {
+           where: {
+            username: {  [Op.like]: `%${options.searchs}%`  },
+            firstname: {  [Op.like]: `%${options.searchs}%`  },
+            lastname: {  [Op.like]: `%${options.searchs}%`  },
+            email: {  [Op.like]: `%${options.searchs}%`  }
+           }
+       };
+     }
+
+     const transform = (records: User[]): UserDto[] => {
+       const result: UserDto[] = records.map(record => {
+           return   {
+              id : record.id,
+              username: record.username,
+              firstname: record.firstname,
+              lastname: record.lastname,
+              email: record.email,
+              isActive: record.isActive,
+           } 
+       }) ;
+       return result;
+    }
+
+     if (order_by && options.order) {
+       paginationOptions.order.push([order_by, options.order]);
+     }else{
+       paginationOptions.order.push(['id', options.order ?? SortOrder.ASC]);
+     }
+
+     const result = await this.paginationService.paginante<UserDto>(User, paginationOptions, transform);
+     return result;
+ }
 }
 

@@ -20,7 +20,7 @@ import { MailModule } from './mail/mail.module';
       envFilePath: '.env',
       isGlobal: true,
       validate
-    }), // Import ConfigModule
+    }), 
     DatabaseModule,
     AuthModule,
     CommunModule,

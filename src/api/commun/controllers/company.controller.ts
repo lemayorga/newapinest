@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Paginate } from 'src/api/shared/models/paginate.model';
 import { CompanyCreateDto, CompanyDto, CompanyUpdateDto } from '../dtos';
 import { CompanyService } from '../services';
-
+import { PageOptionsDto } from 'src/api/shared/models';
+import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 @ApiTags('Company')
 @Controller('commun/company')
+@UseInterceptors(ClassSerializerInterceptor)
 export class CompanyController {
 
   constructor(private readonly service: CompanyService) {}
@@ -20,17 +21,15 @@ export class CompanyController {
     const result = await this.service.getAll();
     return result;
   }
-
-  @Post('paginate/:pageSize/:pageNumber')
+  
+  @Get('paginate')
+  @ApiOkResponsePaginated(CompanyDto)
   @ApiOperation({ summary: 'List pagination from entity company records.' })
   @ApiResponse({ status: HttpStatus.OK, description:  'Request successful.'})
-  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
-  async paginate(@Param('pageSize') pageSize: number, @Param('pageNumber') pageNumber: number, @Body() pag: Paginate){
-    const result = await this.service.paginante(pageSize, pageNumber,pag);
+  async paginate(@Query() pageOptions: PageOptionsDto) {
+    const result = await this.service.paginate(pageOptions);
     return result;
   }
-
 
   @Get(':id')
   @ApiOkResponse({ type: CompanyDto }) 
