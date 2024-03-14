@@ -9,10 +9,10 @@ export class AppController {
   // getHello(): string {
   //   return this.appService.getHello();
   // }
-  @Get()
- async getHello() {
-    await this.appService.sendEmail();
-    return "hello";
-    // return this.appService.getHello();
-  }
+//   @Get()
+//  async getHello() {
+//     await this.appService.sendEmail();
+//     return "hello";
+//     // return this.appService.getHello();
+//   }
 }

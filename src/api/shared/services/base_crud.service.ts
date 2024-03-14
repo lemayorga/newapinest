@@ -1,8 +1,7 @@
-import { HttpStatus, Logger } from '@nestjs/common';
+import { HttpStatus, Logger, BadRequestException } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { Model, ModelCtor } from "sequelize-typescript";
 import { IRepo, RepoResult , Paginate, RepoError, RequestResult } from "../models";
-
 
 export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implements IRepo<M, T, TC , TU> {
   protected Model!: ModelCtor<M>;
@@ -114,7 +113,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       const [ totalUpdate, dataUpdate ] = await this.Model.update(data, filter)
             
       if(totalUpdate > 0) {
-        const [ values ] =  dataUpdate;
+        const [ values ] =  dataUpdate;  
         const result : T = Object.assign({}, values) as T;
         return RequestResult.ok(result);
       }
@@ -131,6 +130,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
     const values = model.get({ plain:true });
     return Object.assign({}, values) as T;
   }
+
 
   public async paginante(pageSize: number, pageNumber: number, pag: Paginate) : RepoResult<M[]> {
     try{
@@ -186,5 +186,6 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
+    
   }
 }

@@ -1,8 +1,8 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
-import { RepoResult, RepoError, RequestResult } from 'src/api/shared/models';
-import { RepositoryCrudService } from 'src/api/shared/services';
+import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
+import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
 import { Role, User, UsersRoles } from 'src/database/models/security';
 import { RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
 
@@ -11,7 +11,8 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
   constructor(
     @Inject(PROVIDER_NAMES.SECURITY_ROLE) private readonly repositoryRole: typeof Role,
-    @Inject(PROVIDER_NAMES.SECURITY_USERS_IN_ROLES) private readonly repositoryRoleUsersRoles: typeof UsersRoles
+    @Inject(PROVIDER_NAMES.SECURITY_USERS_IN_ROLES) private readonly repositoryRoleUsersRoles: typeof UsersRoles,
+    private paginationService: PaginationService
   ){
     super(Role);
   }
@@ -93,6 +94,39 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }     
   }
+
+  public async paginate(options: PageOptionsDto, order_by?: string) {
+    let paginationOptions: PageMeta = new PageMeta(options.take, options.page);
+
+     if (options.searchs) {
+       paginationOptions.searchs = {
+           where: {
+             name: {  [Op.like]: `%${options.searchs}%`  },
+             codRol: {  [Op.like]: `%${options.searchs}%`  }
+           }
+       };
+     }
+
+     const transform = (records: Role[]): RolDto[] => {
+       const result: RolDto[] = records.map(record => {
+           return   {
+              id : record.id,
+              codRol: record.codRol,
+              name: record.name,
+           } 
+       }) ;
+       return result;
+    }
+
+     if (order_by && options.order) {
+       paginationOptions.order.push([order_by, options.order]);
+     }else{
+       paginationOptions.order.push(['id', options.order ?? SortOrder.ASC]);
+     }
+
+     const result = await this.paginationService.paginante<RolDto>(Role, paginationOptions, transform);
+     return result;
+ }
 }
 
 

@@ -14,7 +14,6 @@ import { EnvCofigName } from 'src/config/environment.validation';
          ConfigService
        ],
        useFactory: async (config: ConfigService) => ({
-        // transport: config.get(EnvCofigName.MAIL_TRANSPORT), or
         transport: {
           host: config.get(EnvCofigName.MAIL_HOST),
           port:  config.get<number>(EnvCofigName.MAIL_PORT),

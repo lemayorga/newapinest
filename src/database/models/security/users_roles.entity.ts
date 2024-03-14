@@ -19,5 +19,3 @@ export class UsersRoles extends Model<UsersRoles> {
   idRol: number;
 }
 
-// https://blog.bozjatorium.com/2020/02/12/nestjs-sequelize-using-typescript-wrapper-many-to-many/
-// https://github.com/sequelize/sequelize-typescript#many-to-many

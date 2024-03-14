@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,14 +9,17 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .addBearerAuth()
     .setTitle('Commun API')
-    .setDescription('Implemente API with nestjs')
+    .setDescription('API with nestjs')
     .setVersion('1.0')
     // .setBasePath('api')
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   
-  await app.listen( process.env.APP_PORT || 3000);
+  const port = process.env.APP_PORT || 3000;
+  await app.listen(port, () => console.log(`App run, port ${port}`) );
 }
 bootstrap();

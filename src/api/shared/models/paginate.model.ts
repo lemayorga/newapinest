@@ -44,7 +44,6 @@ export class Paginate {
 
     @IsArray()
     @ApiProperty({ description: 'order', example: ["property", "DESC"]  })
-    // order?: any[]
     order?: ({ property: string, orderType: OrderType })[]
 
 

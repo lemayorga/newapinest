@@ -3,6 +3,8 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiResponse, ApiTa
 import { GetUser, Auth } from 'src/api/auth/decorators';
 import { RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
 import { RolService } from '../services';
+import { PageOptionsDto } from 'src/api/shared/models';
+import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @Auth()
 @ApiBearerAuth()
@@ -34,6 +36,15 @@ export class RolController {
     return  await this.service.findByCode(code)
   }
 
+  @Get('paginate')
+  @ApiOkResponsePaginated(RolDto)
+  @ApiOperation({ summary: 'List pagination from entity role records.' })
+  @ApiResponse({ status: HttpStatus.OK, description:  'Request successful.'})
+  async paginate(@Query() pageOptions: PageOptionsDto) {
+    const result = await this.service.paginate(pageOptions);
+    return result;
+  }
+  
   @Get(':id')
   @ApiOkResponse({ type: RolDto }) 
   @ApiOperation({ summary: 'Get the entity record role by identifier.' })

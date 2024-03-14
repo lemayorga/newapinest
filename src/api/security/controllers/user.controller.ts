@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChangePasswordUserDto, RolDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
 import { UserService } from '../services';
+import { PageDto, PageOptionsDto } from 'src/api/shared/models';
+import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @ApiTags('User')
 @Controller('security/user')
@@ -10,13 +12,22 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Get()
-  @ApiOkResponse({ type: RolDto, isArray: true }) 
+  @ApiOkResponse({ type: UserDto, isArray: true }) 
   @ApiOperation({ summary: 'List all entity user records.' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Request successful.'})
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
   async get() {
     const result = await this.service.getAll();
+    return result;
+  }
+
+  @Get('paginate')
+  @ApiOkResponsePaginated(UserDto)
+  @ApiOperation({ summary: 'List pagination from entity user records.' })
+  @ApiResponse({ status: HttpStatus.OK, description:  'Request successful.'})
+  async paginate(@Query() pageOptions: PageOptionsDto) {
+    const result = await this.service.paginate(pageOptions);
     return result;
   }
 

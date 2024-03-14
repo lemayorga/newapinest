@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RepoResult } from 'src/api/shared/models/repo.interface';
-import { Paginate } from 'src/api/shared/models/paginate.model';
 import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from '../dtos';
 import { CatalogueService } from '../services';
+import { PageOptionsDto } from 'src/api/shared/models';
+import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @ApiTags('Catalogue')
 @Controller('commun/catalogue')
@@ -22,16 +23,15 @@ export class CatalogueController {
     return result;
   }
 
-  @Post('paginate/:pageSize/:pageNumber')
+  @Get('paginate')
+  @ApiOkResponsePaginated(CatalogueDto)
   @ApiOperation({ summary: 'List pagination from entity catalogue records.' })
   @ApiResponse({ status: HttpStatus.OK, description:  'Request successful.'})
-  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
-	@ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
-  async paginate(@Param('pageSize') pageSize: number, @Param('pageNumber') pageNumber: number, @Body() pag: Paginate): RepoResult<CatalogueDto[]> {
-    const result = await this.service.paginante(pageSize, pageNumber,pag);
+  async paginate(@Query() pageOptions: PageOptionsDto) {
+    const result = await this.service.paginate(pageOptions);
     return result;
   }
-
+  
   @Get(':id')
   @ApiOkResponse({ type: CatalogueDto }) 
   @ApiOperation({ summary: 'Get the entity record catalogue by identifier.' })

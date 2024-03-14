@@ -15,5 +15,5 @@ export class Company extends Model<Company> {
   isActive: boolean;
 
   @Column({ type: DataTypes.INTEGER,  allowNull: true })
-  companySuccessorId: string;
+  companySuccessorId: number;
 }
