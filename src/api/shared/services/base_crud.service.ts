@@ -10,7 +10,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       this.Model = Model;
   }
 
-  public async  getAll(orderDefault: boolean = true, orderBy:string[] = null): RepoResult<T[]> {
+  public async getAll(orderDefault: boolean = true, orderBy:string[] = null): RepoResult<T[]> {
     try {
         let orderById: any[] = orderDefault ? ([ orderBy ??   ['id', 'ASC'] ]) : ( orderBy ? [ orderBy ] : null);
 
@@ -18,6 +18,48 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
         // const result: T[] = JSON.parse(JSON.stringify(data));
         const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
         return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  public async findAll(options?: any): RepoResult<T[]> {
+    try {
+
+        let opt = { raw : true , nest : true };
+        if(options){
+          opt = {
+            ...opt,
+            ...options
+          } 
+        }
+        const data = await this.Model.findAll(opt);
+        const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
+        return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  public async findOne(options?: any):  RepoResult<T | null> {
+    try {
+
+        let opt = { raw : true , nest : true }
+        if(options){
+          opt = {
+            ...opt,
+            ...options
+          } 
+        }
+
+        const data = await this.Model.findOne(opt);
+        const result : T = Object.assign({}, data) as T;
+        if(data)
+          return RequestResult.ok(result);
+
+        return RequestResult.ok(null);
     } catch (ex: any) {
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
@@ -109,15 +151,21 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
   public async updateById(id: number, data: TU): RepoResult<T | null> {
     try {
 
-      const filter : any = {  where: {  id: id   }, returning: true  , raw : true , nest : true,  };
-      const [ totalUpdate, dataUpdate ] = await this.Model.update(data, filter)
+      const filter : any = {  where: {  id   }, returning: true   };
+      const [affectedCount, affectedRows] = await this.Model.update(data, filter)
             
-      if(totalUpdate > 0) {
-        const [ values ] =  dataUpdate;  
-        const result : T = Object.assign({}, values) as T;
+      if(affectedCount > 0 && affectedRows) {
+
+        const result : T = Object.assign({}, affectedRows[0].dataValues) as T;
         return RequestResult.ok(result);
+
+      } else {
+        const record = await this.Model.findOne<M>(filter);
+        if(record){
+          const result : T = Object.assign({}, record.dataValues) as T;
+          return RequestResult.ok(result);
+        }
       }
-    
       return RequestResult.ok(null);
 
     } catch (ex: any) {
@@ -127,65 +175,8 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
   }
 
   public convertToDto(model: M) : T{
-    const values = model.get({ plain:true });
+    const values = model.get({ plain: true });
     return Object.assign({}, values) as T;
   }
 
-
-  public async paginante(pageSize: number, pageNumber: number, pag: Paginate) : RepoResult<M[]> {
-    try{
-      const offset = pageNumber;
-      const limit = pageSize;
-      let propFindModel = {  limit: limit,  offset: offset };
-  
-      if(pag?.search.length > 0){
-  
-          let whereTemp : any = {};
-          let contador: number = 0;
-
-          pag.search.map(filt =>{
-              switch(filt.operation){
-                  case 'LIKE':
-                      whereTemp[filt.name] = {  [Op.like]: `%${filt.value ?? '' }%` };
-                      break;
-                  case  'EQUAL' :
-                      whereTemp[filt.name] = {  [Op.eq]: filt.value  };
-                      break;         
-                  case  'DIST' :
-                      whereTemp[filt.name] = {  [Op.ne]: filt.value  };
-                      break;       
-                  case  'IN':
-                      whereTemp[filt.name] = {  [Op.in]: (filt.value ?? [])  };
-                      break;   
-                  default:
-                      whereTemp[filt.name] = {  [Op.like]: `%${filt.value ?? '' }%` };   
-              }
-              contador ++;
-          });
-          
-          if(contador > 1){
-              propFindModel['where'] = {  [Op.and]: [ { ...whereTemp } ]  };
-          } else if(contador === 1){
-              propFindModel['where'] = {  ...whereTemp  };
-          }
-      }
-  
-  
-      if(pag.order && pag?.order.length > 0){
-           propFindModel['order'] = pag.order;
-      }
-  
-      if(pag.group && pag?.group.length > 0){
-            propFindModel['group'] = pag.group;
-      }         
-  
-      const result = await this.Model.findAll(propFindModel);
-      return RequestResult.ok(result);
-
-    } catch (ex: any) {
-      Logger.error(ex);
-      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
-    }
-    
-  }
 }

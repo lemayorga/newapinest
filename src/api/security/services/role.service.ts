@@ -1,5 +1,5 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
 import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
 import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
@@ -100,9 +100,11 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
      if (options.searchs) {
        paginationOptions.searchs = {
-           where: {
-             name: {  [Op.like]: `%${options.searchs}%`  },
-             codRol: {  [Op.like]: `%${options.searchs}%`  }
+          where: {
+            [Op.or]:[
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+            ]
            }
        };
      }

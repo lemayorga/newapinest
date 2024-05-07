@@ -4,7 +4,7 @@ import { PaginationService } from './services/pagination-query';
 
 @Module({
   imports:[
-    ConfigModule,
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   providers: [
     PaginationService

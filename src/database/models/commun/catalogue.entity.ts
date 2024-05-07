@@ -16,6 +16,6 @@ export class Catalogue extends Model<Catalogue> {
   @Column({ field: 'is_active',  type: DataTypes.BOOLEAN, defaultValue: true , allowNull: false})
   isActive: boolean;
 
-  @Column
-  description: string;
+  @Column({ type: DataTypes.STRING(255), allowNull: true })
+  description?: string;
 }

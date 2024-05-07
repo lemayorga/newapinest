@@ -1,7 +1,11 @@
-import { IsString, IsNumber , validateSync} from 'class-validator';
+import { IsString, IsNumber , validateSync, IsEnum} from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { Environment } from './enviroments';
 
 class EnvironmentVariables {
+
+  @IsEnum(Environment)
+  NODE_ENV: Environment;
 
   @IsString({ message: 'Invalid AP_NAME' })
   AP_NAME: string;
@@ -96,8 +100,10 @@ export const EnvCofigName = {
 export const validate = (config: Record<string, unknown>) => {
   
     // `plainToClass` to converts plain object into Class
-    const validatedConfig = plainToClass(EnvironmentVariables, config, {
-      enableImplicitConversion: true,
+    const validatedConfig = plainToClass(
+      EnvironmentVariables, 
+      config, {
+        enableImplicitConversion: true,
     });
    
     // `validateSync` method validate the class and returns errors

@@ -7,6 +7,9 @@ SELECT 'CREATE DATABASE DBSisTemplate1;'
 WHERE NOT EXISTS(SELECT FROM pg_database WHERE datname = 'DBSisTemplate1')\gexec
 
 
+SELECT 'CREATE DATABASE DBSisTemplate1_Test;'
+WHERE NOT EXISTS(SELECT FROM pg_database WHERE datname = 'DBSisTemplate1_Test')\gexec
+
 -- --###############################################################################################
 
 -- -- commun

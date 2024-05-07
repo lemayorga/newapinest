@@ -10,6 +10,7 @@ import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './auth.controller';
 
+
 @Module({
   controllers: [
     AuthController
@@ -25,9 +26,9 @@ import { AuthController } from './auth.controller';
            ConfigService
        ],
         useFactory: async (configService: ConfigService) => ({
-          secret: configService.get(EnvCofigName.JWT_SECRET_KEY),
+          secret: configService.get<string>(EnvCofigName.JWT_SECRET_KEY),
           signOptions: {
-            expiresIn: configService.get(EnvCofigName.JWT_REFRESH_SECRET),
+            expiresIn: configService.get<string>(EnvCofigName.JWT_REFRESH_SECRET),
           },
         }),
       }),

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { testConnection } from './database/database.provider';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   
   const port = process.env.APP_PORT || 3000;
-  await app.listen(port, () => console.log(`App run, port ${port}`) );
+  await app.listen(port, () => console.log(`App listening at http://localhost:${port}`) );
+  await  testConnection();
 }
 bootstrap();

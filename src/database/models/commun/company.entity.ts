@@ -1,3 +1,4 @@
+import { IsBoolean } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import { Column, Model, Table } from 'sequelize-typescript';
 
@@ -11,9 +12,9 @@ export class Company extends Model<Company> {
   name: string;
 
 
-  @Column({ type: DataTypes.BOOLEAN, field: 'is_active', defaultValue: true , allowNull: false})
+  @Column({ type: DataTypes.BOOLEAN, field: 'is_active', defaultValue: true , allowNull: false })
   isActive: boolean;
 
   @Column({ type: DataTypes.INTEGER,  allowNull: true })
-  companySuccessorId: number;
+  companySuccessorId?: number;
 }

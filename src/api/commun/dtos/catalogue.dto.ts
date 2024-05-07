@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CatalogueDto  {
 
@@ -26,8 +26,9 @@ export class CatalogueDto  {
     isActive: boolean;
 
     @IsString()
+    @IsOptional()
     @MaxLength(150)
-    @ApiProperty({ description: 'Description'  })
+    @ApiProperty({ description: 'Description' , required: false  })
     description: string;
 }  
 
@@ -44,18 +45,22 @@ export class CatalogueCreateDto {
     @IsString()
     @MinLength(1)
     @MaxLength(80)
-    @ApiProperty({ description: 'Value', minimum: 1, maxLength: 80 , required: false  })
+    @ApiProperty({ description: 'Value', minimum: 1, maxLength: 80  })
     value: string;
 
-    @IsBoolean()
-    @ApiProperty({  description: 'Status active/inactive', required: false  })
-    isActive: boolean;
 
     @IsString()
+    @IsOptional()
     @MaxLength(150)
     @ApiProperty({  description: 'Description', minimum: 1,  maxLength: 150, required: false })
     description: string;
 
 }
 
-export class CatalogueUpdateDto extends PartialType(CatalogueCreateDto) { }
+export class CatalogueUpdateDto extends PartialType(CatalogueCreateDto) { 
+
+    @IsBoolean()
+    @ApiProperty({  description: 'Status active/inactive', required: false  })
+    isActive: boolean;
+
+}

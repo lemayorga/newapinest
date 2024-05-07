@@ -1,8 +1,13 @@
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
 import 'dotenv/config';
+import * as dotenv from 'dotenv';
+import { getEnvPath } from '../config/enviroments';
+import { Dialect } from 'sequelize';
+
+dotenv.config({ path: getEnvPath() })
 
 export const dataBaseConfig: SequelizeModuleOptions = {
-    dialect: 'postgres',
+    dialect: (process.env.DIALECT || 'postgres') as Dialect, 
     host: `${process.env.DB_HOST}`,
     port: (+process.env.DB_PORT),
     username: `${process.env.DB_USER}`,
@@ -13,5 +18,8 @@ export const dataBaseConfig: SequelizeModuleOptions = {
         createdAt: false,
         updatedAt: false,
         timestamps: false
-    }
+    },
+    logging: console.log, //false
+    // autoLoadModels: true,
+    // synchronize: true,
 };

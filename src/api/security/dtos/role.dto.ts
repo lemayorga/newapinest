@@ -35,7 +35,9 @@ export class RolCreateDto {
     name: string;
 }
 
-export class RolUpdateDto extends PartialType(RolCreateDto) {}
+export class RolUpdateDto extends PartialType(RolCreateDto) {
+    
+}
 
 
 export class RolUserResultDto {

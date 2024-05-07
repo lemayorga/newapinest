@@ -3,19 +3,19 @@ export class RequestResult<V, E> {
     public isSuccess: boolean;
     public isFailure: boolean;
     private error: E;
-    private value: V;
+    private data: V;
     public message: string;
   
-    private constructor(isSuccess: boolean, value: V, error: E, message: string) {
+    private constructor(isSuccess: boolean, data: V, error: E, message: string) {
       if (isSuccess && error) {
         throw new Error('Successful result must not contain an error');
-      } else if (!isSuccess && value) {
+      } else if (!isSuccess && data) {
         throw new Error('Unsuccessful error must not contain a value');
       }
   
       this.isSuccess = isSuccess;
       this.isFailure = !isSuccess;
-      this.value = value;
+      this.data = data;
       this.error = error;
 
       if(error !== undefined || error){
@@ -52,7 +52,7 @@ export class RequestResult<V, E> {
         throw new Error('Unsuccessful result does not contain a value');
       }
   
-      return this.value;
+      return this.data;
     }
   }
   

@@ -16,5 +16,4 @@ export interface IRepo<M, T, TC , TU> {
   deleteById(id: number): RepoResult<boolean>;
   deleteByIds(ids: string[]): RepoResult<boolean>;
   updateById(id: number, data: TU): RepoResult<T>;
-  paginante(pageSize: number, pageNumber: number, pag: Paginate): RepoResult<M[]>;
 };

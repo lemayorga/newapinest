@@ -75,7 +75,7 @@ export class RolController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
 	@ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
   async update(@Param('id',ParseIntPipe) id: number, @Body() data: RolUpdateDto) {
-    return this.service.updateById(id, data);
+    return await this.service.updateById(id, data);
   }
 
   @Delete(':id')
@@ -100,4 +100,3 @@ export class RolController {
     return result;
   }
 }
-
