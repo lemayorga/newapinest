@@ -1,10 +1,10 @@
-import { IsBoolean } from 'class-validator';
 import { DataTypes } from 'sequelize';
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 @Table({ schema: 'commun', modelName: 'company' })
 export class Company extends Model<Company> {
 
+  @PrimaryKey
   @Column({ type: DataTypes.INTEGER,  autoIncrement: true,   primaryKey: true })
   id: number;
   

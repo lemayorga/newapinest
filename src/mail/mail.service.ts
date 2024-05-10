@@ -10,7 +10,7 @@ export class MailService {
 
     /**
      * Send email 
-     * @mailOptions  {MailOptions} options with data about insert html email 
+     * @mailOptions options with data about insert html email 
      * @return   Promise<SentMessageInfo | boolean> 
      */
     async sendEmail(mailOptions: MailOptions): Promise<SentMessageInfo | boolean> {

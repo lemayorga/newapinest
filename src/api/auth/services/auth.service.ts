@@ -17,8 +17,13 @@ export class AuthService {
     private jwtService: JwtService,
     private userService: UserService
   ) { }
-
-  public async login(signIn: UserLoginDto): Promise<any> {
+  
+  /**
+   *  Login user
+   * @param signIn object data username and password
+   * @returns Return a object UserLoginResponseDto or UnauthorizedException if login is incorrect
+   */
+  public async login(signIn: UserLoginDto): Promise<UserLoginResponseDto> {
 
       const userName = signIn.user.trim().toLowerCase();
       const password = signIn.password.trim();

@@ -3,7 +3,7 @@ import { use } from "passport";
 
 export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
 
-   console.log({data});
+   //console.log({data});
 
     const req = ctx.switchToHttp().getRequest();
     const user = req.user;

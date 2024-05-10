@@ -33,7 +33,7 @@ describe('CatalogueController',() => {
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
-             ...SequelizeSqliteTestingModule(),
+              ...SequelizeSqliteTestingModule,
               SharedModule
             ],
             providers: [
@@ -142,7 +142,7 @@ describe('CatalogueController',() => {
 
 
     it('GET /paginate&searchs → should return array catalogues', async  () => {
-        const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs!}`;
+        const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs}`;
         const response = await request(api).get(uri);
         expect(response.status).toBe(HttpStatus.OK);
         expect(response.body).toBeInstanceOf(Object);
@@ -152,13 +152,7 @@ describe('CatalogueController',() => {
             take: pageOptions.take
             })
           );
-
-    
-        expect(true).toBe(true);
     });
-
-
-
 
     it('PUT /:id → should successfully update a Catalogue by ID', async  () => {
           const id = randomInteger(1, _catalogue.length);

@@ -1,12 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { Column, Model, Table, BelongsToMany } from 'sequelize-typescript';
+import { Column, Model, Table, BelongsToMany, PrimaryKey } from 'sequelize-typescript';
 import { Role } from './role.entity';
 import { UsersRoles } from './users_roles.entity';
 
 
 @Table({ schema: 'security',  modelName: 'user' })
 export class User extends Model<User> {
-
+  
+  @PrimaryKey
   @Column({ type: DataTypes.INTEGER,  autoIncrement: true,   primaryKey: true })
   id: number;
   

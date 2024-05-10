@@ -20,13 +20,11 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
   public async findByCode(codeRole: string): RepoResult<RolDto | null> {
     try {
-
       const data =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
       if(data){
         const result = this.convertToDto(data);
         return RequestResult.ok(result);
       }
-
       return RequestResult.ok(null);
 
     } catch (ex: any) {
@@ -94,7 +92,13 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }     
   }
-
+ 
+  /**
+   * Method of pagination
+   * @param options Options
+   * @param order_by type order to apply
+   * @returns Object data with pagination
+   */
   public async paginate(options: PageOptionsDto, order_by?: string) {
     let paginationOptions: PageMeta = new PageMeta(options.take, options.page);
 
