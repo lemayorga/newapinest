@@ -99,8 +99,6 @@ describe('CatalogueController',() => {
         );
     });
 
-
-
     it('GET /:id → should return a catalogue by Id', async  () => {
 
       const id = randomInteger(1, _catalogue.length);

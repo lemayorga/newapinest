@@ -12,11 +12,11 @@ export class UsersRoles extends Model<UsersRoles> {
   id: number;
 
   @ForeignKey(() =>  User)
-  @Column({field: 'id_user', type: DataTypes.INTEGER })
+  @Column({field: 'idUser', type: DataTypes.INTEGER })
   idUser: number;
   
   @ForeignKey(() =>  Role )
-  @Column({field: 'id_rol', type: DataTypes.INTEGER })
+  @Column({field: 'idRol', type: DataTypes.INTEGER })
   idRol: number;
 }
 

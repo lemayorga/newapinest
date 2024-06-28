@@ -23,7 +23,7 @@ en el __.env__
 
 6. Levantar la base de datos
 ```
-docker-compose up -d
+docker-compose --env-file ./environment/.env up -d
 ```
 
 7. Ejecutar las migraciones

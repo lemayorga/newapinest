@@ -29,7 +29,7 @@ export class User extends Model<User> {
   @Column({ field: 'is_active',  type: DataTypes.BOOLEAN, defaultValue: true , allowNull: false})
   isActive: boolean;
 
-  @BelongsToMany(() => Role, () => UsersRoles, 'id_user')
+  @BelongsToMany(() => Role, () => UsersRoles, 'idUser')
   roles?: Role[]
 
 }

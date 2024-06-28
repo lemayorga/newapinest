@@ -9,7 +9,7 @@ const dataBaseTestingConfig: SequelizeModuleOptions = {
     storage: ':memory:',
     database: `DatabaseTemp_`,
     logging: false,
-    // logging: console.log,
+    //logging: console.log,
     define: {
         freezeTableName: true,
         createdAt: false,
@@ -22,9 +22,9 @@ export const rolesTestDefault = [
     {codRol: 'SADMIN', name: 'sadmin' },
     {codRol: 'ADMIN', name: 'admin' },
     {codRol: 'GUEST', name: 'guest' },
-    {codRol: 'SALE ', name: 'sales' },
-    {codRol: 'MANAGER ', name: 'manager' },
-    {codRol: 'OPERATIONS ', name: 'operations' },
+    {codRol: 'SALE', name: 'sales' },
+    {codRol: 'MANAGER', name: 'manager' },
+    {codRol: 'OPERATIONS', name: 'operations' },
 ];
 
 export const userTestDefault =  {

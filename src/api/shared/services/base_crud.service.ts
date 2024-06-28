@@ -1,6 +1,6 @@
 import { HttpStatus, Logger } from '@nestjs/common';
 import { Model, ModelCtor } from "sequelize-typescript";
-import { IRepo, RepoResult , Paginate, RepoError, RequestResult } from "../models";
+import { IRepo, RepoResult, RepoError, RequestResult } from "../models";
 
 export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implements IRepo<M, T, TC , TU> {
   protected Model!: ModelCtor<M>;
@@ -8,7 +8,13 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
   constructor(Model: ModelCtor<M>) {
       this.Model = Model;
   }
-
+ 
+  /**
+   * Get all records 
+   * @param orderDefault Boolean to aply order defatul that it's order by id ASC
+   * @param orderBy 
+   * @returns 
+   */
   public async getAll(orderDefault: boolean = true, orderBy:string[] = null): RepoResult<T[]> {
     try {
         let orderById: any[] = orderDefault ? ([ orderBy ??   ['id', 'ASC'] ]) : ( orderBy ? [ orderBy ] : null);
@@ -17,12 +23,18 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
   
         const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
         return RequestResult.ok(result);
+      
     } catch (ex: any) {
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
 
+  /**
+   * Get all records 
+   * @param options Options filter from Squelize
+   * @returns 
+   */
   public async findAll(options?: any): RepoResult<T[]> {
     try {
 
@@ -41,7 +53,12 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
-
+ 
+  /**
+   * Get one record
+   * @param options Options filter from Squelize
+   * @returns 
+   */
   public async findOne(options?: any):  RepoResult<T | null> {
     try {
 
@@ -65,13 +82,17 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
     }
   }
 
+   /**
+    * Get one record by id
+    * @param ids Id record
+    * @returns 
+    */
   public async findByIds(ids: number[]): RepoResult<T[]> {
     try {
       const filter : any = {  where: {  id: ids   } , raw : true , nest : true };
       const data = await this.Model.findAll(filter);
       const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
 
-      // if (!doc) { return RequestResult.fail(new RepoError('Not found', 404));  }
       if(data)
         return RequestResult.ok(result);
     
@@ -82,13 +103,16 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       return RequestResult.fail(new RepoError(ex.message, 500));
     }
   }
-
+ /**
+  * Get one record by id
+  * @param id Id record
+  * @returns 
+  */
   public async findById(id: number): RepoResult<T | null> {
     try {
       const filter : any = {  where: {  id: id   }, raw : true , nest : true  };
       const data = await this.Model.findOne<M>(filter);
       const result : T = Object.assign({}, data) as T;
-      // if (!doc) { return RequestResult.fail(new RepoError('Not found', 404));  }
       if(data)
         return RequestResult.ok(result);
     
@@ -98,8 +122,13 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
-  }WWW
+  }
 
+ /**
+  * Delete record by id
+  * @param id Id record
+  * @returns 
+  */
   public async deleteById(id: number): RepoResult<boolean> {
     try {
       const filter : any = {  where: {  id: id   }, raw : true , nest : true  };
@@ -117,7 +146,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
   }
   /**
    * Delete records by ids
-   * @param ids ids
+   * @param ids ids of records
    * @returns 
    */
   public async deleteByIds(ids: string[]): RepoResult<boolean> {
@@ -156,6 +185,12 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
     }
   }
 
+ /**
+  * Update record by id
+  * @param id Id record
+  * @param data New property's values to update record
+  * @returns 
+  */
   public async updateById(id: number, data: TU): RepoResult<T | null> {
     try {
 

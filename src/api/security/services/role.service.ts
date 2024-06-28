@@ -40,6 +40,30 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     }
   }
 
+
+  public override  async updateById(id: number, data: RolUpdateDto): RepoResult<RolDto | null> {
+    try {
+
+      const { codRol, name } = data;
+      const isRoleExists = await this.isRoleExist(codRol,"", id);
+      if(isRoleExists){
+        return RequestResult.fail(new RepoError( `Code rol: ${codRol} or name rol: ${name}  already exists.`, HttpStatus.AMBIGUOUS));
+      }
+      
+      await this.repositoryRole.update(data,{ where: { id }, returning: true });
+            
+      const result = {
+        id,
+        ...data
+      } as RolDto;
+    
+      return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
   
  /**
   *  Determinate if role exists 
@@ -53,8 +77,8 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       where: {
         id:{ [Op.not]: idRole },
         [Op.or]:[
-          Sequelize.where(Sequelize.fn('lower', Sequelize.col('rol_name')), {  [Op.eq]: `${name.toLowerCase()}`  }),
-          Sequelize.where(Sequelize.fn('lower', Sequelize.col('cod_rol')), {  [Op.eq]: `${code.toLowerCase()}`  }),
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.eq]: `${name.toLowerCase()}`  }),
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.eq]: `${code.toLowerCase()}`  }),
         ]
       }
     });
@@ -68,7 +92,9 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
    */
   public async findByCode(codeRole: string): RepoResult<RolDto | null> {
     try {
-      const data =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
+      const data =  await this.repositoryRole.findOne({ 
+         where:   Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.eq]: `${codeRole.toLowerCase().trim()}`  })
+       });
       if(data){
         const result = this.convertToDto(data);
         return RequestResult.ok(result);
@@ -159,8 +185,8 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
        paginationOptions.searchs = {
           where: {
             [Op.or]:[
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('rol_name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('cod_rol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
             ]
            }
        };

@@ -16,9 +16,9 @@ const tableUserConfig = {
 } as TableNameWithSchema;
 
 const seedRoles = [
-    { cod_rol: 'SADMIN', rol_name: 'sadmin' },
-    { cod_rol: 'ADMIN', rol_name: 'admin' },
-    { cod_rol: 'GUEST', rol_name: 'guest' },
+    { codRol: 'SADMIN', name: 'sadmin' },
+    { codRol: 'ADMIN', name: 'admin' },
+    { codRol: 'GUEST', name: 'guest' },
 ];
 
 let user: UserCreateDto =  {
@@ -47,7 +47,7 @@ export const up: Migration = async (context: sequelize) => {
 export const down: Migration = async (context: sequelize) => {
 
     await context.getQueryInterface().bulkDelete(tableRoleConfig, { 
-        cod_rol: seedRoles.map(u => u.cod_rol) 
+        codRol: seedRoles.map(u => u.codRol) 
     });
 
     await context.getQueryInterface().bulkDelete(tableUserConfig, { 

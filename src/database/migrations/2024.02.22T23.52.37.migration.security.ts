@@ -35,14 +35,14 @@ export const up: Migration = async (context: sequelize) => {
 		},
 		codRol: {
 			 allowNull: false ,  
-			 field: 'cod_rol', 
+			 field: 'codRol', 
 			 type: DataTypes.STRING(100) ,  
 			 unique: true,
 			validate: { max: 100 }
 		},
 		name: {
 			 allowNull: false, 
-			 field: 'rol_name', 
+			 field: 'name', 
 			 type: DataTypes.STRING(100) , 
 			 unique: true, 
 			 validate: { max: 100 }
@@ -100,12 +100,12 @@ export const up: Migration = async (context: sequelize) => {
 			},
 			idUser: {
                 allowNull: false ,  
-                field: 'id_user', 
+                field: 'idUser', 
                 type: DataTypes.INTEGER,  
 			},
 			idRol: {
                 allowNull: false, 
-                field: 'id_rol', 
+                field: 'idRol', 
                 type: DataTypes.INTEGER,	
 			},
 	}).then(() => {
@@ -113,7 +113,7 @@ export const up: Migration = async (context: sequelize) => {
 		{
 			type: 'foreign key',
 			name: 'FK_usersroless_rol',
-			fields: ['id_rol'], 
+			fields: ['idRol'], 
 			onDelete: 'CASCADE',
 			references: { table: tableRoleConfig, field: 'id' }
 		} as AddForeignKeyConstraintOptions);
@@ -122,7 +122,7 @@ export const up: Migration = async (context: sequelize) => {
 		{
 			type: 'foreign key',
 			name: 'FK_usersroles_user',
-			fields: ['id_user'], 
+			fields: ['idUser'], 
 			onDelete: 'CASCADE',
 			references: { table: tableUserConfig, field: 'id' }
 		} as AddForeignKeyConstraintOptions);
