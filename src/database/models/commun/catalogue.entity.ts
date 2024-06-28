@@ -1,9 +1,11 @@
 import { DataTypes } from 'sequelize';
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 
 @Table({ schema: 'commun',  modelName: 'catalogue' })
 export class Catalogue extends Model<Catalogue> {
+  
+  @PrimaryKey
   @Column({ type: DataTypes.INTEGER,  autoIncrement: true,   primaryKey: true })
   id: number;
   
@@ -16,6 +18,6 @@ export class Catalogue extends Model<Catalogue> {
   @Column({ field: 'is_active',  type: DataTypes.BOOLEAN, defaultValue: true , allowNull: false})
   isActive: boolean;
 
-  @Column
-  description: string;
+  @Column({ type: DataTypes.STRING(255), allowNull: true })
+  description?: string;
 }

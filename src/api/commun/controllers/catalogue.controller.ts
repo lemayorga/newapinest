@@ -31,7 +31,7 @@ export class CatalogueController {
     const result = await this.service.paginate(pageOptions);
     return result;
   }
-  
+    
   @Get(':id')
   @ApiOkResponse({ type: CatalogueDto }) 
   @ApiOperation({ summary: 'Get the entity record catalogue by identifier.' })
@@ -62,7 +62,7 @@ export class CatalogueController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
 	@ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
   async update(@Param('id',ParseIntPipe) id: number, @Body() data: CatalogueUpdateDto) : RepoResult<CatalogueDto> {
-    return this.service.updateById(id, data);
+    return await this.service.updateById(id, data);
   }
 
   @Delete(':id')

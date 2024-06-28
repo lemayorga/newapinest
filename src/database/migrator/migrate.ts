@@ -1,14 +1,16 @@
-import 'dotenv/config';
+// import 'dotenv/config';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Sequelize } from 'sequelize-typescript';
-import { dataBaseConfig } from '../database.config';
+import { dataBaseConfig } from './../database.config';
 const { Umzug, SequelizeStorage } = require('umzug');
 
 const DB_NAME =  `${dataBaseConfig.database}`;
 const DB_USER = `${dataBaseConfig.username}`;
 const sequelize = new Sequelize(dataBaseConfig);
-  
+
+
+
 export const migrator  = new Umzug({
     migrations: {
     //   glob: ['./src/database/migrations/*.ts', { cwd: __dirname }],
@@ -154,12 +156,11 @@ function cmdHardReset() {
   });
 }
 
-
 const cmd =  (process.argv[2] || '').trim();
 let executedCmd;
 
+console.log(`Execute to database ${DB_NAME}`);
 console.log(`${cmd.toUpperCase()} BEGIN`);
-
 
 switch (cmd) {
     case 'status':

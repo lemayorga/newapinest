@@ -1,7 +1,11 @@
-import { IsString, IsNumber , validateSync} from 'class-validator';
+import { IsString, IsNumber , validateSync, IsEnum} from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { Environment } from './enviroments';
 
 class EnvironmentVariables {
+
+  @IsEnum(Environment)
+  NODE_ENV: Environment;
 
   @IsString({ message: 'Invalid AP_NAME' })
   AP_NAME: string;
@@ -28,6 +32,18 @@ class EnvironmentVariables {
   @IsNumber()
   DB_PORT: number;
 
+
+  // **** User default
+  @IsString({ message: 'Invalid DEFAULT_USER' })
+  DEFAULT_USER: string;
+
+  @IsString({ message: 'Invalid DEFAULT_USER_EMAIL' })
+  DEFAULT_USER_EMAIL: string;
+
+  @IsString({ message: 'Invalid DEFAULT_USER_PASSWORD' })
+  DEFAULT_USER_PASSWORD: string;
+
+  
   // **** Security
   @IsString({ message: 'Invalid ALGORITHM' })
   ALGORITHM: string;
@@ -70,12 +86,19 @@ class EnvironmentVariables {
 export const EnvCofigName = {
   AP_NAME: 'AP_NAME',
   AP_VERSION: 'AP_VERSION',
+  APP_TITLE: 'APP_TITLE',
+  APP_DESCRIPTION: 'APP_DESCRIPTION',
+  APP_PORT: 'APP_PORT',
   
   DB_USER: 'DB_USER',
   DB_PASSWORD: 'DB_PASSWORD',
   DB_HOST: 'DB_HOST',
   DB_NAME: 'DB_NAME',
   DB_PORT: 'DB_PORT',
+
+  DEFAULT_USER: 'DEFAULT_USER',
+  DEFAULT_USER_EMAIL: 'DEFAULT_USER_EMAIL',
+  DEFAULT_USER_PASSWORD: 'DEFAULT_USER_PASSWORD',
 
   ALGORITHM: 'ALGORITHM',
   JWT_SECRET_KEY: 'JWT_SECRET_KEY',
@@ -96,8 +119,10 @@ export const EnvCofigName = {
 export const validate = (config: Record<string, unknown>) => {
   
     // `plainToClass` to converts plain object into Class
-    const validatedConfig = plainToClass(EnvironmentVariables, config, {
-      enableImplicitConversion: true,
+    const validatedConfig = plainToClass(
+      EnvironmentVariables, 
+      config, {
+        enableImplicitConversion: true,
     });
    
     // `validateSync` method validate the class and returns errors

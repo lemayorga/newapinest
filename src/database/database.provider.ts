@@ -8,6 +8,8 @@ export const PROVIDER_NAMES = {
   SEQUELIZE: 'SEQUELIZE',
 }
 
+export const sequelize = new Sequelize(dataBaseConfig);
+
 export const databaseProviders = [
   {
     provide: PROVIDER_NAMES.SEQUELIZE,
@@ -16,18 +18,30 @@ export const databaseProviders = [
     ], 
     useFactory: async (configService: ConfigService) => {
 
-     const sequelize = new Sequelize(dataBaseConfig);
-
       sequelize.addModels([
         ...modelsCommun,
         ...modelSecurity
       ]);
-
-      sequelize.authenticate()
-          .then(() =>{ console.log("test database connected ...")  })
-          .catch((error) => {console.log("Database catch block : "+ error) });
-
       return sequelize;
     },
   },
 ];
+
+
+export async function testConnection() {
+  try {
+      await sequelize.authenticate();
+      console.log(`Connection to the database "${sequelize.config.database}" has been established successfully.`);
+  } catch (error) {
+      console.error(`Unable to connect to the database "${sequelize.config.database}":`, error);
+  }
+}
+
+export async function syncModels() {
+  try {
+      await sequelize.sync();
+      console.log("Models have been synchronized with the database.");
+  } catch (error) {
+      console.error("Unable to sync models with the database:", error);
+  }
+}

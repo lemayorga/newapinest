@@ -23,12 +23,13 @@ en el __.env__
 
 6. Levantar la base de datos
 ```
-docker-compose up -d
+docker-compose --env-file ./environment/.env up -d
 ```
 
 7. Ejecutar las migraciones
 ```
 npm run migrate up
+npm run migrate up NODE_ENV=dev|test|prod
 ```
 8. Ejecutar los seeders
 ```
@@ -37,7 +38,7 @@ npm run migrate seed
 
 9. Ejecutar la aplicación en dev:
 ```
-   npm run start:dev
+npm run start:dev
 ```
 <!-- 10. Reconstruir la base de datos 
 ```
@@ -45,18 +46,15 @@ npm run migrate seed
 ``` -->
 # Crear un nuevo archivo migracion
 ```
-   npm run  migrate:create --name="migration.{{nombre_definir}}.ts"
-
+npm run  migrate:create --name="migration.{{nombre_definir}}.ts"
 ```
 # Crear un nuevo archivo seed
 ```
-   npm run  seed:create --name="seed.{{nombre_definir}}.ts"
-
+npm run  seed:create --name="seed.{{nombre_definir}}.ts"
 ```
 # Construir la imagen
 ```
-   docker compose build 
-
+docker compose build 
 ```
 
 # Ejecutar el docker file
@@ -72,6 +70,12 @@ npm run migrate seed
 
    docker run --rm -it -p 3000:3000 nestjs-app
 ```
+
+# Ejecutar test
+```
+npm run test
+```
+
 
 ## Stack usado
 * Postgres

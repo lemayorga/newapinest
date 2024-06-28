@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
 import { encryptText, compareEncryptText} from 'src/utils';
 import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
@@ -17,6 +17,11 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
     super(User);
   }
 
+  /**
+   * Finding user por userName or email
+   * @param user userName or userEmail
+   * @returns User 
+   */
   public async findByUserNameOrEmail(user: string): Promise<User>  {
     user =  user.trim().toLowerCase();
     const data =  await this.repository.findOne({ where: { 
@@ -127,11 +132,13 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
 
      if (options.searchs) {
        paginationOptions.searchs = {
-           where: {
-            username: {  [Op.like]: `%${options.searchs}%`  },
-            firstname: {  [Op.like]: `%${options.searchs}%`  },
-            lastname: {  [Op.like]: `%${options.searchs}%`  },
-            email: {  [Op.like]: `%${options.searchs}%`  }
+          where: {
+            [Op.or]:[
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+            ]
            }
        };
      }

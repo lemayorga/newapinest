@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CompanyDto {
     
@@ -30,7 +30,7 @@ export class CompanyDto {
         description: 'Company successor',
         required: false
     })
-    companySuccessorId: number;
+    companySuccessorId?: number;
 }  
 
 export class CompanyCreateDto {
@@ -47,20 +47,22 @@ export class CompanyCreateDto {
     })
     name: string;
 
+    @IsNumber()
+    @IsOptional()
+    @ApiProperty({
+        description: 'Company successor',
+        required: false
+    })
+    companySuccessorId?: number;
+
+}
+
+export class CompanyUpdateDto extends PartialType(CompanyCreateDto) {
+
     @IsBoolean()
     @ApiProperty({
          description: 'Status active/inactive'
     })
     isActive: boolean;
 
-
-    @IsNumber()
-    @ApiProperty({
-        description: 'Company successor',
-        required: false
-    })
-    companySuccessorId: number;
-
 }
-
-export class CompanyUpdateDto extends PartialType(CompanyCreateDto) {}

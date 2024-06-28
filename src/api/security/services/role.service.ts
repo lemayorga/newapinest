@@ -1,5 +1,5 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
 import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
 import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
@@ -17,16 +17,88 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     super(Role);
   }
 
-
-  public async findByCode(codeRole: string): RepoResult<RolDto | null> {
+  public override async create(data: RolCreateDto): RepoResult<RolDto | null> {
     try {
 
-      const data =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
+      const { codRol, name } = data;
+      const isRoleExists = await this.isRoleExist(codRol,name);
+      if(isRoleExists){
+        return RequestResult.fail(new RepoError( `Code rol: ${codRol} or name rol: ${name}  already exists.`, HttpStatus.AMBIGUOUS));
+      }
+       
+      const model = await this.repositoryRole.create(data,{ returning: true, raw : true , nest : true });
+      const result = {
+        id : model.id,
+        codRol: codRol.toUpperCase().trim(),
+        name
+      } as RolDto;
+    
+      return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+
+  public override  async updateById(id: number, data: RolUpdateDto): RepoResult<RolDto | null> {
+    try {
+
+      const { codRol, name } = data;
+      const isRoleExists = await this.isRoleExist(codRol,"", id);
+      if(isRoleExists){
+        return RequestResult.fail(new RepoError( `Code rol: ${codRol} or name rol: ${name}  already exists.`, HttpStatus.AMBIGUOUS));
+      }
+      
+      await this.repositoryRole.update(data,{ where: { id }, returning: true });
+            
+      const result = {
+        id,
+        ...data
+      } as RolDto;
+    
+      return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  
+ /**
+  *  Determinate if role exists 
+  * @param code Code role
+  * @param name  Name role
+  * @param idRole  Id role
+  * @returns if it exists return true
+  */
+  public async isRoleExist(code: string, name: string, idRole: number = 0): Promise<boolean> {
+    const { count  } =  await this.repositoryRole.findAndCountAll({
+      where: {
+        id:{ [Op.not]: idRole },
+        [Op.or]:[
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.eq]: `${name.toLowerCase()}`  }),
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.eq]: `${code.toLowerCase()}`  }),
+        ]
+      }
+    });
+    return count > 0;
+  }
+  
+  /**
+   * Finding a role by code role
+   * @param codeRole code rol to find
+   * @returns objecto Rol
+   */
+  public async findByCode(codeRole: string): RepoResult<RolDto | null> {
+    try {
+      const data =  await this.repositoryRole.findOne({ 
+         where:   Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.eq]: `${codeRole.toLowerCase().trim()}`  })
+       });
       if(data){
         const result = this.convertToDto(data);
         return RequestResult.ok(result);
       }
-
       return RequestResult.ok(null);
 
     } catch (ex: any) {
@@ -35,7 +107,12 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     }
   }
 
-
+ /**
+  * Asociate rol a lot users
+  * @param codeRole code rol
+  * @param uesrIds  array of users ids
+  * @returns array of role and user by parameter code rol
+  */
   public async asignateUsersByCodeRole(codeRole: string, uesrIds: number[]) : RepoResult<RolUserResultDto[]> {
     try {
 
@@ -94,15 +171,23 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }     
   }
-
+ 
+  /**
+   * Method of pagination
+   * @param options Options
+   * @param order_by type order to apply
+   * @returns Object data with pagination
+   */
   public async paginate(options: PageOptionsDto, order_by?: string) {
     let paginationOptions: PageMeta = new PageMeta(options.take, options.page);
 
      if (options.searchs) {
        paginationOptions.searchs = {
-           where: {
-             name: {  [Op.like]: `%${options.searchs}%`  },
-             codRol: {  [Op.like]: `%${options.searchs}%`  }
+          where: {
+            [Op.or]:[
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+            ]
            }
        };
      }
@@ -126,7 +211,7 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
      const result = await this.paginationService.paginante<RolDto>(Role, paginationOptions, transform);
      return result;
- }
+  }
 }
 
 

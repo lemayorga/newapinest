@@ -5,7 +5,7 @@ import { RepositoryCrudService } from 'src/api/shared/services/base_crud.service
 import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from '../dtos';
 import { PageMeta, PageOptionsDto, SortOrder } from 'src/api/shared/models';
 import { PaginationService } from 'src/api/shared/services';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 @Injectable()
 export class CatalogueService extends RepositoryCrudService<Catalogue, CatalogueDto, CatalogueCreateDto, CatalogueUpdateDto> {
@@ -15,18 +15,20 @@ export class CatalogueService extends RepositoryCrudService<Catalogue, Catalogue
     ){
      super(Catalogue);
     }
-
-
     public async paginate(options: PageOptionsDto, order_by?: string) {
       let paginationOptions: PageMeta = new PageMeta(options.take, options.page);
 
        if (options.searchs) {
          paginationOptions.searchs = {
              where: {
-               name: {  [Op.like]: `%${options.searchs}%`  }
+              [Op.or]:[
+                Sequelize.where(Sequelize.fn('lower', Sequelize.col('group')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+                Sequelize.where(Sequelize.fn('lower', Sequelize.col('value')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              ]
              }
          };
        }
+
 
        const transform = (records: CatalogueDto[]): CatalogueDto[] => {
          const result: CatalogueDto[] = records.map(record => {

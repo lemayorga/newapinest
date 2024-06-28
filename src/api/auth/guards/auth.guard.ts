@@ -6,6 +6,7 @@ import { UserDataRequest } from "../models";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+    
   constructor(
     private reflector: Reflector,
     private readonly configService: ConfigService,
