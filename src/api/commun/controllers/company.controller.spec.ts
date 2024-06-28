@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
-import  * as request from 'supertest';
+import { SuperAgentTest, agent as supertest }  from 'supertest';
 import { Company } from 'src/database/models/commun';
 import { SharedModule } from 'src/api/shared/shared.module';
 import { CommunProviders } from "../commun.provider";
@@ -13,7 +13,8 @@ import { PageOptionsDto, SortOrder } from "src/api/shared/models";
 describe('CompanyController',() => {
 
     const url = `/commun/company`;
-    let app: INestApplication; let api: any;
+    let app: INestApplication; 
+    let agent: SuperAgentTest;
     let _controller : CompanyController;
     let _service: CompanyService;   
 
@@ -37,16 +38,14 @@ describe('CompanyController',() => {
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
-             ...SequelizeSqliteTestingModule(),
+             ...SequelizeSqliteTestingModule,
               SharedModule
             ],
             providers: [
               ...CommunProviders,
               CompanyService
             ],
-            controllers: [
-              CompanyController
-            ],
+            controllers: [  CompanyController  ],
         }).compile();
 
         _controller = moduleFixture.get<CompanyController>(CompanyController);
@@ -59,7 +58,7 @@ describe('CompanyController',() => {
         }));
 
         await app.init();
-        api = app.getHttpServer();
+        agent = supertest(app.getHttpServer());
 
         for(let data of _companies.filter((item, index) => index > 0)){
           _service.create(data);
@@ -74,7 +73,7 @@ describe('CompanyController',() => {
 
     it('POST / → should successfully insert a Company', async  () => {
       const [data] = _companies;
-      const response = await request(api).post(url).send(data);
+      const response = await  agent.post(url).send(data);
 
       expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toBeInstanceOf(Object);
@@ -90,7 +89,7 @@ describe('CompanyController',() => {
     });
 
     it('GET / → should return array Companies', async  () => {
-        const response = await request(api).get(url);
+        const response = await  agent.get(url);
         expect(response.status).toBe(HttpStatus.OK);
         expect(response.body).toBeInstanceOf(Object);
         expect(response.body).toEqual(
@@ -107,7 +106,7 @@ describe('CompanyController',() => {
     it('GET /:id → should return a Company by Id', async  () => {
 
       const id = randomInteger(1, _companies.length);
-      const response = await request(api).get(`${url}/${id}`);
+      const response = await  agent.get(`${url}/${id}`);
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toEqual(
@@ -122,7 +121,7 @@ describe('CompanyController',() => {
 
 
     it('GET /paginate → should return array Company', async  () => {
-        const response = await request(api).get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
+        const response = await agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
         expect(response.status).toBe(HttpStatus.OK);
         expect(response.body).toBeInstanceOf(Object);
         expect(response.body).toEqual(
@@ -135,8 +134,7 @@ describe('CompanyController',() => {
 
     it('PUT /:id → should successfully update a Company by ID', async  () => {
           const id = randomInteger(1, _companies.length);
-          const response = await request(api)
-                          .put(`${url}/${id}`)
+          const response = await agent.put(`${url}/${id}`)
                           .send({
                             name: `Cambio nombre _${randomInteger(1, 100)}`,
                             isActive: false
@@ -157,7 +155,7 @@ describe('CompanyController',() => {
 
     it('DELETE /:id → should not delete a company by ID ', async  () => {
       const id = randomInteger(1, _companies.length);
-      const response = await request(api).delete(`${url}/${id}`);
+      const response = await  agent.delete(`${url}/${id}`);
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toEqual(
@@ -171,7 +169,7 @@ describe('CompanyController',() => {
 
     it('DELETE /:id → mistake delete a Company by ID not exists', async  () => {
       const id = randomInteger(_companies.length + 1, 100);
-      const response = await request(api).delete(`${url}/${id}`);
+      const response = await  agent.delete(`${url}/${id}`);
 
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);

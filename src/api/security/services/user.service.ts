@@ -17,6 +17,11 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
     super(User);
   }
 
+  /**
+   * Finding user por userName or email
+   * @param user userName or userEmail
+   * @returns User 
+   */
   public async findByUserNameOrEmail(user: string): Promise<User>  {
     user =  user.trim().toLowerCase();
     const data =  await this.repository.findOne({ where: { 

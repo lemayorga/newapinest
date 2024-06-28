@@ -17,7 +17,55 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     super(Role);
   }
 
+  public override async create(data: RolCreateDto): RepoResult<RolDto | null> {
+    try {
 
+      const { codRol, name } = data;
+      const isRoleExists = await this.isRoleExist(codRol,name);
+      if(isRoleExists){
+        return RequestResult.fail(new RepoError( `Code rol: ${codRol} or name rol: ${name}  already exists.`, HttpStatus.AMBIGUOUS));
+      }
+       
+      const model = await this.repositoryRole.create(data,{ returning: true, raw : true , nest : true });
+      const result = {
+        id : model.id,
+        codRol: codRol.toUpperCase().trim(),
+        name
+      } as RolDto;
+    
+      return RequestResult.ok(result);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  
+ /**
+  *  Determinate if role exists 
+  * @param code Code role
+  * @param name  Name role
+  * @param idRole  Id role
+  * @returns if it exists return true
+  */
+  public async isRoleExist(code: string, name: string, idRole: number = 0): Promise<boolean> {
+    const { count  } =  await this.repositoryRole.findAndCountAll({
+      where: {
+        id:{ [Op.not]: idRole },
+        [Op.or]:[
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('rol_name')), {  [Op.eq]: `${name.toLowerCase()}`  }),
+          Sequelize.where(Sequelize.fn('lower', Sequelize.col('cod_rol')), {  [Op.eq]: `${code.toLowerCase()}`  }),
+        ]
+      }
+    });
+    return count > 0;
+  }
+  
+  /**
+   * Finding a role by code role
+   * @param codeRole code rol to find
+   * @returns objecto Rol
+   */
   public async findByCode(codeRole: string): RepoResult<RolDto | null> {
     try {
       const data =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
@@ -33,7 +81,12 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     }
   }
 
-
+ /**
+  * Asociate rol a lot users
+  * @param codeRole code rol
+  * @param uesrIds  array of users ids
+  * @returns array of role and user by parameter code rol
+  */
   public async asignateUsersByCodeRole(codeRole: string, uesrIds: number[]) : RepoResult<RolUserResultDto[]> {
     try {
 
@@ -106,8 +159,8 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
        paginationOptions.searchs = {
           where: {
             [Op.or]:[
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('rol_name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('lower', Sequelize.col('cod_rol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
             ]
            }
        };
@@ -132,7 +185,7 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
      const result = await this.paginationService.paginante<RolDto>(Role, paginationOptions, transform);
      return result;
- }
+  }
 }
 
 

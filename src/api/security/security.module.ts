@@ -10,6 +10,7 @@ import {
 import { RolController } from './controllers/role.controller';
 import { UserController } from './controllers/user.controller';
 
+
 @Module({
   controllers: [
       RolController,
@@ -23,7 +24,7 @@ import { UserController } from './controllers/user.controller';
     providers: [
       ...SecurityProviders,
       RolService,
-      UserService
+      UserService,
     ],
     exports:[
       RolService,

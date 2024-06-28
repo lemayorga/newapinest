@@ -1,5 +1,6 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, MinLength } from 'class-validator';
+import { Transform } from "class-transformer";
+import { IsNotEmpty, IsNumber, IsString, MinLength } from 'class-validator';
 
 export class RolDto {
 
@@ -10,13 +11,13 @@ export class RolDto {
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
-    @ApiProperty({ description: 'Code rol', minimum: 3,  maxLength: 100 , required: false })
+    @ApiProperty({ description: 'Code rol', minimum: 3,  maxLength: 100 , required: true })
     codRol: string;
    
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
-    @ApiProperty({  description: 'Rol name', minimum: 3, maxLength: 100 , required: false })
+    @ApiProperty({  description: 'Rol name', minimum: 3, maxLength: 100 , required: true })
     name: string;
 }  
 
@@ -25,13 +26,14 @@ export class RolCreateDto {
     @IsString()
     @MinLength(3)
     @IsNotEmpty()
-    @ApiProperty({ description: 'Code rol', minimum: 3,  maxLength: 100, required: false  })
+    @Transform(({value}) => value.toUpperCase())
+    @ApiProperty({ description: 'Code rol', minimum: 3,  maxLength: 100, required: true  })
     codRol: string;
    
     @IsString()
     @IsNotEmpty()
     @MinLength(3)
-    @ApiProperty({  description: 'Rol name', minimum: 3, maxLength: 100, required: false  })
+    @ApiProperty({  description: 'Rol name', minimum: 3, maxLength: 100, required: true  })
     name: string;
 }
 

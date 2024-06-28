@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
-import  * as request from 'supertest';
+import { SuperAgentTest, agent as supertest }  from 'supertest';
 import { Catalogue } from 'src/database/models/commun';
 import { SharedModule } from 'src/api/shared/shared.module';
 import { CommunProviders } from "../commun.provider";
@@ -13,7 +13,8 @@ import { randomInteger } from "src/utils";
 describe('CatalogueController',() => {
 
     const url = `/commun/catalogue`;
-    let app: INestApplication; let api: any;
+    let app: INestApplication; 
+    let agent: SuperAgentTest;
     let _controller : CatalogueController;
     let _service: CatalogueService;   
 
@@ -40,9 +41,7 @@ describe('CatalogueController',() => {
               ...CommunProviders,
               CatalogueService
             ],
-            controllers: [
-              CatalogueController
-            ],
+            controllers: [ CatalogueController  ],
         }).compile();
 
         _controller = moduleFixture.get<CatalogueController>(CatalogueController);
@@ -55,7 +54,7 @@ describe('CatalogueController',() => {
         }));
 
         await app.init();
-        api = app.getHttpServer();
+        agent = supertest(app.getHttpServer());
 
         for(let data of _catalogue.filter((item, index) => index > 0)){
           _service.create(data);
@@ -70,7 +69,7 @@ describe('CatalogueController',() => {
 
     it('POST / → should successfully insert a catalogue', async  () => {
       const [data] = _catalogue;
-      const response = await request(api).post(url).send(data);
+      const response = await  agent.post(url).send(data);
 
       expect(response.status).toBe(HttpStatus.CREATED);
       expect(response.body).toBeInstanceOf(Object);
@@ -88,7 +87,7 @@ describe('CatalogueController',() => {
     });
 
     it('GET / → should return array catalogues', async  () => {
-        const response = await request(api).get(url);
+        const response = await agent.get(url);
         expect(response.status).toBe(HttpStatus.OK);
         expect(response.body).toBeInstanceOf(Object);
         expect(response.body).toEqual(
@@ -105,7 +104,7 @@ describe('CatalogueController',() => {
     it('GET /:id → should return a catalogue by Id', async  () => {
 
       const id = randomInteger(1, _catalogue.length);
-      const response = await request(api).get(`${url}/${id}`);
+      const response = await  agent.get(`${url}/${id}`);
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toEqual(
@@ -126,7 +125,7 @@ describe('CatalogueController',() => {
     });
 
     it('GET /paginate → should return array catalogues', async  () => {
-      const response = await request(api).get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
+      const response = await  agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toEqual(
@@ -143,7 +142,7 @@ describe('CatalogueController',() => {
 
     it('GET /paginate&searchs → should return array catalogues', async  () => {
         const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs}`;
-        const response = await request(api).get(uri);
+        const response = await  agent.get(uri);
         expect(response.status).toBe(HttpStatus.OK);
         expect(response.body).toBeInstanceOf(Object);
         expect(response.body).toEqual(
@@ -156,8 +155,7 @@ describe('CatalogueController',() => {
 
     it('PUT /:id → should successfully update a Catalogue by ID', async  () => {
           const id = randomInteger(1, _catalogue.length);
-          const response = await request(api)
-                          .put(`${url}/${id}`)
+          const response = await  agent.put(`${url}/${id}`)
                           .send({
                             group: `Cambio group  _${randomInteger(1, 100)}`,
                             value: `Cambio value  _${randomInteger(1, 100)}`,
@@ -179,7 +177,7 @@ describe('CatalogueController',() => {
 
     it('DELETE /:id → should not delete a Catalogue by ID ', async  () => {
       const id = randomInteger(1, _catalogue.length);
-      const response = await request(api).delete(`${url}/${id}`);
+      const response = await  agent.delete(`${url}/${id}`);
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body).toEqual(
@@ -193,7 +191,7 @@ describe('CatalogueController',() => {
 
     it('DELETE /:id → mistake delete a Catalogue by ID not exists', async  () => {
       const id = randomInteger(_catalogue.length + 1, 100);
-      const response = await request(api).delete(`${url}/${id}`);
+      const response = await  agent.delete(`${url}/${id}`);
 
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toBeInstanceOf(Object);

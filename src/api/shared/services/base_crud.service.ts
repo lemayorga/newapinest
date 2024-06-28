@@ -1,5 +1,4 @@
-import { HttpStatus, Logger, BadRequestException } from '@nestjs/common';
-import { Op } from 'sequelize';
+import { HttpStatus, Logger } from '@nestjs/common';
 import { Model, ModelCtor } from "sequelize-typescript";
 import { IRepo, RepoResult , Paginate, RepoError, RequestResult } from "../models";
 
@@ -15,7 +14,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
         let orderById: any[] = orderDefault ? ([ orderBy ??   ['id', 'ASC'] ]) : ( orderBy ? [ orderBy ] : null);
 
         const data = await this.Model.findAll({ raw : true , nest : true , order: orderById });
-        // const result: T[] = JSON.parse(JSON.stringify(data));
+  
         const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
         return RequestResult.ok(result);
     } catch (ex: any) {
@@ -99,7 +98,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
-  }
+  }WWW
 
   public async deleteById(id: number): RepoResult<boolean> {
     try {
@@ -116,7 +115,11 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
-
+  /**
+   * Delete records by ids
+   * @param ids ids
+   * @returns 
+   */
   public async deleteByIds(ids: string[]): RepoResult<boolean> {
     try {
       const filter : any = {  where: {  id: ids   }  };
@@ -132,7 +135,12 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
-
+ 
+  /**
+   * Insert value record in Database
+   * @param data value record
+   * @returns value record from Database
+   */
   public async create(data: TC): RepoResult<T | null> {
     try {
       const dataSave = this.Model.build({...data} as any,{ raw:true } );
