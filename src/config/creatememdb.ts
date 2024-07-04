@@ -2,12 +2,13 @@ import { SequelizeModule, SequelizeModuleOptions } from "@nestjs/sequelize";
 import { ModelCtor, Sequelize } from "sequelize-typescript";
 import { RolCreateDto } from "src/api/security/dtos";
 import { Role, User, UsersRoles } from "src/database/models/security";
-import { encryptText } from "src/utils";
+import { encryptText, randomInteger } from "src/utils";
 
+const id = randomInteger(1,1000);
 const dataBaseTestingConfig: SequelizeModuleOptions = {
     dialect: 'sqlite',
     storage: ':memory:',
-    database: `DatabaseTemp_`,
+    database: `DatabaseTemp_${id}`,
     logging: false,
     //logging: console.log,
     define: {
@@ -44,46 +45,52 @@ export const SequelizeSqliteTestingModule = [
 /**
  * Create database Sqlite in memory
  * @param models specific models to add  context database
+ * @param applySecurity Aply security models 
+ * @param printInfo Show information about models mapping
  * @returns object database  Sequelize
  */
-export async function createSqliteDB(models: ModelCtor[]) : Promise<Sequelize> {
+export async function createSqliteDB(models: ModelCtor[], applySecurity: boolean = false, printInfo: boolean = false) : Promise<Sequelize> {
     const memDB = new Sequelize(dataBaseTestingConfig);
+
+   if(applySecurity){
+    models = [
+        ...models,
+        Role,
+        User,
+        UsersRoles
+    ];
+   }
     memDB.addModels(models);
     await memDB.sync();
-    printInfoMemDB(memDB);
+
+   if(applySecurity){
+    await createRolesAndUsers();
+   }
+
+    printInfoMemDB(memDB, printInfo);
     return memDB;
 }
 
-/**
- * Create database Sqlite in memory with data defatult: user, roles
- * @param models specific models to add  context database
- * @returns object database  Sequelize
- */
-export const createSqliteDBWithDataSecurity = async (models: ModelCtor[]) =>{
-    models = [
-        ...models,
-        Role, UsersRoles, User
-    ];
-    await createSqliteDB(models)
+async function createRolesAndUsers(){
     for(let role of rolesTestDefault){
-      let recordRole =   await Role.create(role as RolCreateDto);
-
-      if(recordRole.codRol == 'SADMIN'){
-        const password = await encryptText (`${process.env.DEFAULT_USER_PASSWORD}`);
-        let recordUser = await User.create({
-            ...userTestDefault,
-            password
-        });
-        await UsersRoles.create({
-            idUser: recordUser.id,
-            idRol: recordRole.id
-        })
+        let recordRole =   await Role.create(role as RolCreateDto);
+  
+        if(recordRole.codRol == 'SADMIN'){
+          const password = await encryptText (`${process.env.DEFAULT_USER_PASSWORD}`);
+          let recordUser = await User.create({
+              ...userTestDefault,
+              password
+          });
+          await UsersRoles.create({
+              idUser: recordUser.id,
+              idRol: recordRole.id
+          })
+        }
       }
-    }
 }
 
 function printInfoMemDB (sequelize: Sequelize, printInfo: boolean = false): void {
-    printInfo && console.log(`Database memory: ${sequelize.options.database} | Testing models:  ${(Object.keys(sequelize.models).join(', '))}`);
+    printInfo && console.log(`Database memory: ${sequelize.options.database} | Testing models: ${(Object.keys(sequelize.models).join(', '))}`);
 }
 
 

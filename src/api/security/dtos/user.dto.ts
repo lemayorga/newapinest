@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MinLength } from 'class-validator';
 
 export class UserDto {
     @IsNumber()
@@ -70,7 +70,31 @@ export class UserCreateDto {
 
 }
 
-export class UserUpdateDto extends PartialType(UserCreateDto) {
+export class UserUpdateDto  {
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(3)
+    @ApiProperty({ description: 'User name', minimum: 3,  maxLength: 100 , required: true })
+    username: string;
+   
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(3)
+    @ApiProperty({  description: 'First name', minimum: 3, maxLength: 100 , required: true })
+    firstname: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(3)
+    @ApiProperty({  description: 'Last name', minimum: 3, maxLength: 100 , required: true })
+    lastname: string;
+    
+    @IsString()
+    @IsEmail()
+    @IsNotEmpty()
+    @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,3}$/g)
+    @ApiProperty({  description: 'Email', maxLength: 100 , required: true })
+    email: string;
 
     @IsBoolean()
     @ApiProperty({ description: 'Status active/inactive'  })
@@ -99,6 +123,6 @@ export class ChangePasswordUserDto {
 
     @IsBoolean()
     @ApiPropertyOptional()
-    @ApiProperty({ description: 'Compare current Password and new password, avoid duplicate'  })
-    comparePasswords!: boolean;
+    @ApiProperty({ description: 'Compare current Password with existing password en data base'  })
+    compareCurrentPasswords!: boolean;
 }

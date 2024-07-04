@@ -19,7 +19,6 @@ export const dataBaseConfig: SequelizeModuleOptions = {
         updatedAt: false,
         timestamps: false
     },
+    logQueryParameters: true,
     logging: console.log, //false
-    // autoLoadModels: true,
-    // synchronize: true,
 };

@@ -32,5 +32,10 @@ export class User extends Model<User> {
   @BelongsToMany(() => Role, () => UsersRoles, 'idUser')
   roles?: Role[]
 
+   
+  static applyActivatedScope() {
+      // Aplicar el scope Orden predeterminado por la columna 'id' en orden ascendente
+   //   this.addScope('defaultScope', {  order: [['id', 'ASC']], }, { override: true });
+  }
 }
 

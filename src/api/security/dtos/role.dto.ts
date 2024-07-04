@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, MinLength } from 'class-validator';
 
 export class RolDto {
 
@@ -50,7 +50,7 @@ export class RolUserResultDto {
 
     @IsString()
     @ApiProperty({ description: 'Code rol'  })
-    codRol: string;
+    codeRol: string;
    
     @IsString()
     @ApiProperty({  description: 'Rol name' })
@@ -69,4 +69,14 @@ export class RolUserResultDto {
     @MinLength(3)
     @ApiProperty({  description: 'Last name' })
     lastname: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(3)
+    @ApiProperty({  description: 'Email user' })
+    userEmail: string;
+
+    @IsBoolean()
+    @ApiProperty({ description: 'Status active/inactive'  })
+    userActive: boolean;
 }

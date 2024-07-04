@@ -36,6 +36,17 @@ export class RolController {
     return  await this.service.findByCode(code)
   }
 
+  @Get('getRolesUsersByCodeRol')
+  @ApiOkResponse({ type: RolUserResultDto }) 
+  @ApiOperation({ summary: 'Get the user asociato to role, filter by code.' })
+  @ApiResponse({ status: HttpStatus.OK, description:  'Request successful.'})
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity does not exist'})
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
+  async getRolesUsersByCodeRol(@Query('code') code: string) {
+    return  await this.service.getRolesUsersByCodeRol(code)
+  }
+
   @Get('paginate')
   @ApiOkResponsePaginated(RolDto)
   @ApiOperation({ summary: 'List pagination from entity role records.' })

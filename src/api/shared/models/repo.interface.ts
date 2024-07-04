@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 import { NonAbstract } from "sequelize-typescript/dist/shared/types";
-import { Paginate, RepoError, RequestResult } from ".";
+import { RepoError, RequestResult } from ".";
 
 export type RepoResult<M> = Promise<RequestResult<M | undefined, RepoError | undefined>>;
 

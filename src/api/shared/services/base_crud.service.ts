@@ -195,7 +195,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
     try {
 
       const filter : any = {  where: {  id   }, returning: true   };
-      const [affectedCount, affectedRows] = await this.Model.update(data, filter)
+      const [affectedCount, affectedRows] = await this.Model.update(data, filter);
             
       if(affectedCount > 0 && affectedRows) {
 
