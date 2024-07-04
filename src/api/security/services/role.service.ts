@@ -113,64 +113,69 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
   * @param uesrIds  array of users ids
   * @returns array of role and user by parameter code rol
   */
-  public async asignateUsersByCodeRole(codeRole: string, uesrIds: number[]) : RepoResult<RolUserResultDto[]> {
-    try {
+ public async asignateUsersByCodeRole(codeRole: string, uesrIds: number[]) : RepoResult<RolUserResultDto[]> {
 
-      const role =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
+  const transaction = await  this.repositoryRole.sequelize.transaction();
+  try {
 
-      if(!role){
-        return RequestResult.fail(new RepoError('Role does not found', HttpStatus.NOT_FOUND));
+    const role =  await this.repositoryRole.findOne({ where: { codRol: codeRole }})
+
+    if(!role){
+      return RequestResult.fail(new RepoError('Role does not found', HttpStatus.NOT_FOUND));
+    }
+
+    const usersRolesExists =  await this.repositoryRoleUsersRoles.findAll({
+        attributes: [ 'idUser'],
+        raw: true,
+        where: {
+        idRol: role.id,
+        idUser: { [Op.in]: uesrIds }
       }
+    });
 
-      const usersRolesExists =  await this.repositoryRoleUsersRoles.findAll({
-          attributes: [ 'idUser'],
-          raw: true,
-          where: {
-          idRol: role.id,
-          idUser: { [Op.in]: uesrIds }
-        }
+    const  data: UsersRoles[] = uesrIds.filter(userId => !usersRolesExists.map(y => y.idUser).includes(userId))
+    .map(userId => {
+      return { idUser: userId,   idRol: role.id  } as  UsersRoles
+    });
+
+    await this.repositoryRoleUsersRoles.bulkCreate(data);
+
+    const usersRoles = await this.repositoryRole.findOne({
+        where: { codRol: codeRole },
+        attributes: ['codRol', 'id','name'] ,
+        include: [{
+          model:  User,
+          attributes:[ 'username', 'firstname' ,'lastname'  ]
+        }]
+    });
+
+    let result: RolUserResultDto[] = []; 
+
+    if(usersRoles.users){ 
+      result = usersRoles.users.map(val => {
+        return  {
+            idRol: role.id,
+            codeRol: role.codRol,
+            rolName: role.name,
+            username: val.username,
+            firstname: val.firstname,
+            lastname: val.lastname,
+            userEmail: val.email,
+            userActive: val.isActive
+        } as RolUserResultDto;
       });
 
-      const  data: UsersRoles[] = uesrIds.filter(userId => !usersRolesExists.map(y => y.idUser).includes(userId))
-      .map(userId => {
-        return { idUser: userId,   idRol: role.id  } as  UsersRoles
-      });
+    }
+    
+    await transaction.commit();
+    return RequestResult.ok(result);
 
-      await this.repositoryRoleUsersRoles.bulkCreate(data);
-
-      const usersRoles = await this.repositoryRole.findOne({
-          where: { codRol: codeRole },
-          attributes: ['codRol', 'id','name'] ,
-          include: [{
-            model:  User,
-            attributes:[ 'username', 'firstname' ,'lastname'  ]
-          }]
-      });
-
-      let result: RolUserResultDto[] = []; 
-
-      if(usersRoles.users){ 
-        result = usersRoles.users.map(val => {
-          return  {
-              idRol: role.id,
-              codRol: role.codRol,
-              rolName: role.name,
-              username: val.username,
-              firstname: val.firstname,
-              lastname: val.lastname,
-          } as RolUserResultDto;
-        });
-
-      }
-
-      return RequestResult.ok(result);
-
-
-    } catch (ex: any) {
-      Logger.error(ex);
-      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
-    }     
-  }
+  } catch (ex: any) {
+    Logger.error(ex);
+    await  transaction.rollback();
+    return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+  }     
+}
  
   /**
    * Method of pagination
@@ -211,6 +216,47 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
 
      const result = await this.paginationService.paginante<RolDto>(Role, paginationOptions, transform);
      return result;
+  }
+
+  public async getRolesUsersByCodeRol(codeRol: string): RepoResult<RolUserResultDto[]> {
+    try {
+      
+      const role = await this.repositoryRole.findOne({
+        where: Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${codeRol.toLowerCase()}%`  }),
+        include: [
+          {
+            model: User, 
+            attributes: { exclude: ['password']  }
+          }
+        ]
+      });
+
+      if(!role){
+        return RequestResult.fail(new RepoError('Role does not found', HttpStatus.NOT_FOUND));
+      }
+  
+      let resultado: RolUserResultDto[] = [];
+      if(role.users){
+        resultado = role.users.map(r => {
+          return {
+              idRol: role.id,
+              codeRol: role.codRol,
+              rolName: role.name,
+              userId: r.id,
+              username: r.username,
+              firstname: r.firstname,
+              lastname: r.lastname,
+              userEmail: r.email,
+              userActive: r.isActive
+            };
+        });
+        
+      }
+      return RequestResult.ok(resultado);
+    } catch (ex: any) {
+      Logger.error(ex);
+      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
   }
 }
 

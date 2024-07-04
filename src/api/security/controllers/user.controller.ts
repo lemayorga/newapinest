@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ChangePasswordUserDto, RolDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
+import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
 import { UserService } from '../services';
-import { PageDto, PageOptionsDto } from 'src/api/shared/models';
+import { PageOptionsDto } from 'src/api/shared/models';
 import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @ApiTags('User')
@@ -53,6 +53,17 @@ export class UserController {
     return result;
   }
   
+  @Put('changePassword')
+  @ApiOkResponse({ type: UserDto }) 
+  @ApiOperation({ summary: 'Change password user.' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Entity update successfully.'})
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity does not exist'})
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
+	@ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
+  async changePassword(@Body() data: ChangePasswordUserDto) {
+    return this.service.changePassword(data);
+  }
+
   @Put(':id')
   @ApiOkResponse({ type: UserDto }) 
   @ApiOperation({ summary: 'Update record user by identifier.' })
@@ -64,16 +75,7 @@ export class UserController {
     return await this.service.updateById(id, data);
   }
 
-  @Put('changePassword')
-  @ApiOkResponse({ type: UserDto }) 
-  @ApiOperation({ summary: 'Update password user.' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Entity update successfully.'})
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity does not exist'})
-  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.'})
-	@ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request.'})
-  async changePassword(@Body() data: ChangePasswordUserDto) {
-    return this.service.changePassword(data);
-  }
+
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete record user by identifier.' })

@@ -1,3 +1,4 @@
+import { use } from 'passport';
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Op, Sequelize } from 'sequelize';
 import { PROVIDER_NAMES } from '../security.provider';
@@ -36,10 +37,12 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
 
   public override async create(data: UserCreateDto): RepoResult<UserDto | null> {
     try {
+      const { password }  = data;
       data =  {
         ...data,
         username: data.username.trim().toLowerCase(),
         email: data.email.trim().toLowerCase(),
+        password: await encryptText (data.password)
       }
 
       const userExist = await this.findByUserNameOrEmail(data.username);
@@ -49,8 +52,9 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
           email: data.email,
         } as any);
       }
+  
+      data.password = await encryptText (password); //encryptPassword
 
-      data.password = await encryptText (data.password); //encryptPassword
 
       const model =  await this.repository.create(data,{ returning: true, raw : true , nest : true });
       const result : UserDto = {
@@ -61,7 +65,7 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
           email: model.email,
           isActive: model.isActive
       };
-      
+
       return RequestResult.ok(result);
     } catch (ex: any) {
       Logger.error(ex);
@@ -69,20 +73,21 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
     }
   }
 
-  public async updateById(idUser: number, data: UserUpdateDto): RepoResult<UserDto | null> {
+  public override async updateById(id: number, data: UserUpdateDto): RepoResult<UserDto | null> {
     try {
-      const user = await this.repository.findOne<User>({  where: {  id: idUser   }, raw : true , nest : true,  });
+      const user = await this.repository.findOne<User>({  where: {  id  }, raw : false , nest : true,  });
       if (!user) {
         throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
       }
 
-      user.firstname = data.firstname || user.firstname;
-      user.lastname = data.lastname || user.lastname;
-      user.email = data.email || user.email;
-      user.isActive = data.isActive || user.isActive;
+      await this.repository.update({
+        ...data
+      }, {  where: {  id  } });
 
-      const model = await user.save();
-      const { password, ...result } = model;
+      const result : UserDto = {
+        id,
+        ...data
+      };
 
       return RequestResult.ok(result);
 
@@ -95,29 +100,36 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
   public async changePassword(changePassword: ChangePasswordUserDto): RepoResult<UserDto | null> {
     try{
 
-      const { username,  currentPassword, newPassword,  comparePasswords } =  changePassword;
+      const { username,  currentPassword, newPassword,  compareCurrentPasswords } =  changePassword;
       const user = await this.findByUserNameOrEmail(username);
       if (!user) {
         throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
       }
 
-      if(comparePasswords) {
+      if(compareCurrentPasswords) {
         const passwordValid  = await compareEncryptText(currentPassword, user.password);
         if (!passwordValid) {
-            throw new HttpException('Invalid email or password.', HttpStatus.BAD_REQUEST);
+            return RequestResult.fail(new RepoError('The current password is incorrect', HttpStatus.BAD_REQUEST));
         }
       }
 
       const isEqualNewPassworAndOldPassword  = await compareEncryptText(newPassword, user.password);
       if(isEqualNewPassworAndOldPassword){
-          throw new HttpException('The new password cannot be identical to the existing password.', HttpStatus.BAD_REQUEST);
+          return RequestResult.fail(new RepoError('The new password cannot be identical to the existing password.', HttpStatus.BAD_REQUEST));
       }
 
       const newPasswordEncript = await encryptText(newPassword); //encryptPassword
-      user.password =  newPasswordEncript;
 
-      const model = await user.save();
-      const { password , ...result } = model;
+      await this.repository.update({  password :  newPasswordEncript },{  where: {  id: user.id } });
+
+      const result : UserDto = {
+        id: user.id,
+        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        isActive: user.isActive
+      };
 
       return RequestResult.ok(result);
 
@@ -134,10 +146,14 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
        paginationOptions.searchs = {
           where: {
             [Op.or]:[
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('username')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('firstname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('lastname')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('email')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('username')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('firstname')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('lastname')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('email')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
             ]
            }
        };
