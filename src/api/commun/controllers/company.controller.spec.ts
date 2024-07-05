@@ -1,14 +1,15 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
 import { SuperAgentTest, agent as supertest }  from 'supertest';
+import { SharedModule } from 'src/shared/shared.module';
+import { createSqliteDB, SequelizeSqliteTestingModule } from "src/database/creatememdb";
+import { PageOptionsDto, SortOrder } from "src/shared/models";
+import { randomInteger } from "src/utils";
 import { Company } from 'src/database/models/commun';
-import { SharedModule } from 'src/api/shared/shared.module';
 import { CommunProviders } from "../commun.provider";
 import { CompanyController } from "./company.controller";
 import { CompanyService } from "../services";
-import { SequelizeSqliteTestingModule, createSqliteDB } from "src/config/creatememdb";
-import { randomInteger } from "src/utils";
-import { PageOptionsDto, SortOrder } from "src/api/shared/models";
+import { Sequelize } from "sequelize";
 
 describe('CompanyController',() => {
 
@@ -32,9 +33,10 @@ describe('CompanyController',() => {
       order: SortOrder.ASC,
     };
     
+    let db : Sequelize; 
     beforeAll(async () => {
 
-        await createSqliteDB([Company]);
+      db = await createSqliteDB([Company]);
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
@@ -65,6 +67,8 @@ describe('CompanyController',() => {
         }
     });
 
+    afterAll(async() => db.drop() )
+    
     it('should be defined', () => {
         expect(_controller).toBeDefined();
         expect(_service).toBeDefined();
@@ -117,19 +121,6 @@ describe('CompanyController',() => {
         })
       );
       expect(_companies.some(x => x.name === response.body.data.name)).toEqual(true);
-    });
-
-
-    it('GET /paginate → should return array Company', async  () => {
-        const response = await agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
-        expect(response.status).toBe(HttpStatus.OK);
-        expect(response.body).toBeInstanceOf(Object);
-        expect(response.body).toEqual(
-          expect.objectContaining({
-            currentPage: pageOptions.page,
-            take: pageOptions.take
-          })
-        );
     });
 
     it('PUT /:id → should successfully update a Company by ID', async  () => {

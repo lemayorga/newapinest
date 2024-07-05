@@ -2,7 +2,6 @@
 import { Injectable } from '@nestjs/common';
 import { PageDto, PageMeta } from '../models/paginate-query.model';
 
-
 @Injectable()
 export class PaginationService {
 

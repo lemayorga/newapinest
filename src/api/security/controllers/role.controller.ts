@@ -1,11 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUser, Auth } from 'src/api/auth/decorators';
+import { PageOptionsDto } from 'src/shared/models';
+import { ApiOkResponsePaginated } from 'src/shared/decorators/api-response-paginated';
 import { RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
 import { RolService } from '../services';
-import { PageOptionsDto } from 'src/api/shared/models';
-import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
-
 @Auth()
 @ApiBearerAuth()
 @ApiTags('Role')

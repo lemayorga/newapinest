@@ -15,7 +15,6 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() signInDto: UserLoginDto)  {
-    let d = await encryptText ('Sadmin123'); //encryptPassword
     const result = await this.service.login(signInDto);
     return result;
   }

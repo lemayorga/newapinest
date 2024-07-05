@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PROVIDER_NAMES } from '../commun.provider';
 import { Op, Sequelize } from 'sequelize';
 import { Company } from 'src/database/models/commun';
-import { RepositoryCrudService } from 'src/api/shared/services/base_crud.service';
+import { PROVIDER_NAMES } from '../commun.provider';
+import { PageDto, PageMeta, PageOptionsDto, SortOrder } from 'src/shared/models';
+import { RepositoryCrudService , PaginationService } from 'src/shared/services';
 import { CompanyCreateDto, CompanyDto, CompanyUpdateDto } from '../dtos';
-import { PageDto, PageMeta, PageOptionsDto, SortOrder } from 'src/api/shared/models';
-import { PaginationService } from 'src/api/shared/services';
 
 @Injectable()
 export class CompanyService  extends RepositoryCrudService<Company, CompanyDto, CompanyCreateDto , CompanyUpdateDto> {
@@ -24,7 +23,8 @@ export class CompanyService  extends RepositoryCrudService<Company, CompanyDto, 
           paginationOptions.searchs = {
               where: {
                 [Op.or]:[
-                  Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  })
+                  // Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  })
+                  Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
                 ]
                }
           };

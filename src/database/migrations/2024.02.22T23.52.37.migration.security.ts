@@ -5,21 +5,11 @@ import type { Migration } from '../migrator/umzugconf';
 
 const schemaName = 'security';
 
-const tableRoleConfig = {
-    tableName: 'role', 
-    schema: schemaName
-} as TableNameWithSchema;
+const tableRoleConfig = {  tableName: 'role',  schema: schemaName } as TableNameWithSchema;
 
-const tableUserConfig = {
-    tableName: 'user', 
-    schema: schemaName
-} as TableNameWithSchema;
+const tableUserConfig = {  tableName: 'user',   schema: schemaName } as TableNameWithSchema;
 
-
-const tableRolesUserConfig = {
-    tableName: 'usersroles', 
-    schema: schemaName
-} as TableNameWithSchema;
+const tableRolesUserConfig = {  tableName: 'usersroles',   schema: schemaName } as TableNameWithSchema;
 
 
 

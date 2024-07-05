@@ -3,6 +3,7 @@ import sequelize from "sequelize/types/sequelize";
 import { TableNameWithSchema } from 'sequelize';
 import type { Migration } from '../migrator/umzugconf';
 import { UserCreateDto } from 'src/api/security/dtos';
+import { rolesDefault, userDefault } from '../../core/data.initial';
 
 
 const tableRoleConfig = {
@@ -15,20 +16,14 @@ const tableUserConfig = {
     schema: 'security'
 } as TableNameWithSchema;
 
-const seedRoles = [
-    { codRol: 'SADMIN', name: 'sadmin' },
-    { codRol: 'ADMIN', name: 'admin' },
-    { codRol: 'GUEST', name: 'guest' },
-];
 
-let user: UserCreateDto =  {
-    username: `${process.env.DEFAULT_USER}`,
-    email: `${process.env.DEFAULT_USER_EMAIL}`,
+const seedRoles =  [...rolesDefault];
+
+
+let user: UserCreateDto = {
+    ...userDefault,
     password: `${process.env.DEFAULT_USER_PASSWORD}`,
-    firstname: `${process.env.DEFAULT_USER}`,
-    lastname: `${process.env.DEFAULT_USER}`,
-} as  UserCreateDto;
-
+};
 
 async function encryptText(password: string, roundsSald: number = 10): Promise<string> {
     const salt = await genSalt(roundsSald);

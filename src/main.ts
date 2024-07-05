@@ -1,25 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import { testConnection } from './database/database.provider';
 import { useContainer } from 'class-validator';
+import { AppModule } from './app.module';
+import { setupSwagger } from './swagger';
+import { testConnection } from './database/database.provider';
 
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
-
-    const config = new DocumentBuilder()
-      .addBearerAuth()
-      .setTitle('Commun API')
-      .setDescription('API with nestjs')
-      .setVersion('1.0')
-      // .setBasePath('api')
-      .build();
+    setupSwagger(app);
     
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
-  
     useContainer(app.select(AppModule),  { fallback: true , fallbackOnErrors: true});
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     

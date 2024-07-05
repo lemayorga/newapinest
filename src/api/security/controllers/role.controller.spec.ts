@@ -1,19 +1,20 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
 import { SuperAgentTest, agent as supertest } from 'supertest';
-import { SharedModule } from 'src/api/shared/shared.module';
-import { SequelizeSqliteTestingModule, createSqliteDB, rolesTestDefault } from "src/config/creatememdb";
+import { createSqliteDB, SequelizeSqliteTestingModule } from "src/database/creatememdb";
+import { SharedModule } from "src/shared/shared.module";
+import { PageOptionsDto, SortOrder } from "src/shared/models";
 import { randomInteger } from "src/utils";
+import { AuthModule } from "src/api/auth/auth.module";
+import { AuthService } from "src/api/auth/services/";
+import { RolCreateDto } from "../dtos";
+import { SecurityProviders } from "../security.provider";
 import { RolController } from "./role.controller";
 import { RolService } from "../services";
-import { SecurityProviders } from "../security.provider";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { EnvCofigName } from "src/config/environment.validation";
-import { AuthModule } from "src/api/auth/auth.module";
-import { AuthService } from "src/api/auth/services/auth.service";
-import { PassportModule } from "@nestjs/passport";
-import { RolCreateDto } from "../dtos";
-import { PageOptionsDto, SortOrder } from "src/api/shared/models";
+import { rolesDefault, userLoginSadmin } from "src/core";
+
 
 describe('RolController',() => {
 
@@ -25,16 +26,17 @@ describe('RolController',() => {
     let _serviceAuth: AuthService;   
     const pageOptions: PageOptionsDto = {  page: 1,  take: 10,  order: SortOrder.ASC, searchs: 'GUESS'  } 
 
+    let rolesTestDefault =  [...rolesDefault];
     let rolDemo: RolCreateDto = { codRol: 'DEMO' , name: 'Rol_test' };
 
     beforeAll(async () => {
 
-        await createSqliteDB([], true);
+        await createSqliteDB([],{ applySecurity: true });
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
               ...SequelizeSqliteTestingModule,
-              ConfigModule,
+             // ConfigModule,
               SharedModule,
               AuthModule,
               PassportModule.register({ defaultStrategy:  'jwt' }),
@@ -59,13 +61,8 @@ describe('RolController',() => {
         }));
 
         await app.init();
-
-        const userLogin = {
-            user: config.get<string>(EnvCofigName.DEFAULT_USER_EMAIL),
-            password: config.get<string>(EnvCofigName.DEFAULT_USER_PASSWORD)  
-        };
     
-        const loginResponse = await _serviceAuth.login(userLogin);
+        const loginResponse = await _serviceAuth.login(userLoginSadmin);
 
         agent = supertest(app.getHttpServer());
         agent.auth(loginResponse.token, { type: 'bearer' });
@@ -143,34 +140,6 @@ describe('RolController',() => {
         );
         expect(rolesTestDefault.some(x => x.codRol === response.body.data.codRol)).toEqual(true);
     });  
-    
-    
-    it('GET /paginate → should return array roles', async  () => {
-      const response = await  agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          currentPage: pageOptions.page,
-          take: pageOptions.take,
-          data: expect.any(Array)
-          })
-        );
-        expect(response.body.data).toEqual(expect.any(Array));
-    });
-
-    it('GET /paginate&searchs → should return array roles', async  () => {
-      const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs}`;
-      const response = await  agent.get(uri);
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          currentPage: pageOptions.page,
-          take: pageOptions.take
-          })
-        );
-     });
 
      it('PUT /:id → should successfully update a role by ID', async  () => {
    

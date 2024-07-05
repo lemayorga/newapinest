@@ -1,13 +1,13 @@
-import { compare } from "bcrypt";
 import { ConfigService } from "@nestjs/config";
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { EnvCofigName } from "src/config/environment.validation";
+import { EnvCofigName } from "src/config";
 import { UserLoginDto } from "../dtos/user-login.dto";
 import { JwtPayload } from "../models/jwt-payload.model";
 import { UserLoginResponseDto } from "../dtos/user-login-response.dto";
 import { User } from "src/database/models/security";
 import { UserService } from "../../security/services";
+import { compareEncryptText } from "src/utils";
 
 @Injectable()
 export class AuthService {
@@ -33,7 +33,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password.');
       }
 
-      const passwordValid  = await compare(password, user.password);
+      const passwordValid  = await compareEncryptText(password, user.password);
       if (!passwordValid) {
           throw new HttpException('Invalid email or password.', HttpStatus.BAD_REQUEST);
       }

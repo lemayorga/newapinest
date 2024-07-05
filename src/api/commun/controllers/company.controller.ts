@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PageOptionsDto } from 'src/shared/models';
+import { ApiOkResponsePaginated } from 'src/shared/decorators/api-response-paginated';
 import { CompanyCreateDto, CompanyDto, CompanyUpdateDto } from '../dtos';
 import { CompanyService } from '../services';
-import { PageOptionsDto } from 'src/api/shared/models';
-import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
+
 @ApiTags('Company')
 @Controller('commun/company')
 @UseInterceptors(ClassSerializerInterceptor)
