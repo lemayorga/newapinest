@@ -1,10 +1,9 @@
-import { use } from 'passport';
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Op, Sequelize } from 'sequelize';
+import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/shared/models';
+import { PaginationService, RepositoryCrudService } from 'src/shared/services';
+import { encryptText, compareEncryptText } from 'src/utils';
 import { PROVIDER_NAMES } from '../security.provider';
-import { encryptText, compareEncryptText} from 'src/utils';
-import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
-import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
 import { User } from 'src/database/models/security';
 import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
 

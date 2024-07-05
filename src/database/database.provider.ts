@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { Sequelize } from 'sequelize-typescript';
+import { dataBaseConfig } from './database.config';
 import { models as modelsCommun } from './models/commun';
 import { models as modelSecurity } from "./models/security";
-import { dataBaseConfig } from './database.config';
 
 export const PROVIDER_NAMES = {
   SEQUELIZE: 'SEQUELIZE',
@@ -13,11 +13,8 @@ export const sequelize = new Sequelize(dataBaseConfig);
 export const databaseProviders = [
   {
     provide: PROVIDER_NAMES.SEQUELIZE,
-    inject: [
-      ConfigService
-    ], 
+    inject: [   ConfigService  ], 
     useFactory: async (configService: ConfigService) => {
-
       sequelize.addModels([
         ...modelsCommun,
         ...modelSecurity

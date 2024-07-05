@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PageOptionsDto } from 'src/shared/models';
+import { ApiOkResponsePaginated } from 'src/shared/decorators/api-response-paginated';
 import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
 import { UserService } from '../services';
-import { PageOptionsDto } from 'src/api/shared/models';
-import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @ApiTags('User')
 @Controller('security/user')

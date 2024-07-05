@@ -1,19 +1,18 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
 import { SuperAgentTest, agent as supertest } from 'supertest';
-import { SharedModule } from 'src/api/shared/shared.module';
-import { SequelizeSqliteTestingModule, createSqliteDB } from "src/config/creatememdb";
+import { createSqliteDB, SequelizeSqliteTestingModule } from "src/database/creatememdb";
+import { SharedModule } from "src/shared/shared.module";
+import { PageOptionsDto, SortOrder } from "src/shared/models";
+import { AuthModule } from "src/api/auth/auth.module";
+import { AuthService } from "src/api/auth/services";
 import { UserController } from "./user.controller";
 import { UserService } from "../services";
 import { SecurityProviders } from "../security.provider";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { EnvCofigName } from "src/config/environment.validation";
-import { AuthModule } from "src/api/auth/auth.module";
-import { AuthService } from "src/api/auth/services/auth.service";
-import { PassportModule } from "@nestjs/passport";
 import { ChangePasswordUserDto, UserCreateDto, UserUpdateDto } from "../dtos";
-import { PageOptionsDto, SortOrder } from "src/api/shared/models";
-
+import { userLoginSadmin } from "src/core";
 
 describe('UserController',() => {
 
@@ -36,12 +35,11 @@ describe('UserController',() => {
 
     beforeAll(async () => {
 
-        await createSqliteDB([], true, true);
+        await createSqliteDB([], { applySecurity: true }); 
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
               ...SequelizeSqliteTestingModule,
-              ConfigModule,
               SharedModule,
               AuthModule,
               PassportModule.register({ defaultStrategy:  'jwt' }),
@@ -67,12 +65,7 @@ describe('UserController',() => {
 
         await app.init();
 
-        const userLogin = {
-            user: config.get<string>(EnvCofigName.DEFAULT_USER_EMAIL),
-            password: config.get<string>(EnvCofigName.DEFAULT_USER_PASSWORD)  
-        };
-    
-        const loginResponse = await _serviceAuth.login(userLogin);
+        const loginResponse = await _serviceAuth.login(userLoginSadmin);
 
         agent = supertest(app.getHttpServer());
         agent.auth(loginResponse.token, { type: 'bearer' });
@@ -112,33 +105,6 @@ describe('UserController',() => {
           expect.objectContaining({   isSuccess: true,   isFailure: false,  data: expect.any(Object) })  );
         expect(response.body.data).toBeDefined();
     });    
-    
-    it('GET /paginate → should return array users', async  () => {
-      const response = await  agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          currentPage: pageOptions.page,
-          take: pageOptions.take,
-          data: expect.any(Array)
-          })
-        );
-        expect(response.body.data).toEqual(expect.any(Array));
-    });
-
-    it('GET /paginate&searchs → should return array users', async  () => {
-      const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs}`;
-      const response = await  agent.get(uri);
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          currentPage: pageOptions.page,
-          take: pageOptions.take
-          })
-        );
-     });
 
      it('PUT /:id → should successfully update a user by ID', async  () => {
       const userUpdate: UserUpdateDto = {

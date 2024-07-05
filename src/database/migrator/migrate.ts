@@ -1,4 +1,3 @@
-// import 'dotenv/config';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Sequelize } from 'sequelize-typescript';
@@ -8,8 +7,6 @@ const { Umzug, SequelizeStorage } = require('umzug');
 const DB_NAME =  `${dataBaseConfig.database}`;
 const DB_USER = `${dataBaseConfig.username}`;
 const sequelize = new Sequelize(dataBaseConfig);
-
-
 
 export const migrator  = new Umzug({
     migrations: {

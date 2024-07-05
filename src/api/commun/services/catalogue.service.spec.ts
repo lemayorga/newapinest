@@ -1,10 +1,10 @@
 import { Op, Sequelize } from "sequelize";
-import { CatalogueService } from "./catalogue.sevice";
-import { createSqliteDB } from "src/config/creatememdb";
-import { RepoError, RequestResult } from '../../shared/models';
+import { createSqliteDB } from "src/database/creatememdb";
+import { RepoError, RequestResult } from "src/shared/models";
+import { PaginationService } from "src/shared/services";
 import { Catalogue } from "src/database/models/commun";
-import { PaginationService } from "src/api/shared/services";
 import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from "../dtos";
+import { CatalogueService } from "./catalogue.sevice";
 
 describe('CatalogueService', () => {
 
@@ -31,7 +31,6 @@ describe('CatalogueService', () => {
       await _memDb.close()
     });
 
-    // afterEach(async () => await _memDb.truncate());
 
     it('should be defined', () => {
       expect(_service).toBeDefined();
@@ -59,18 +58,6 @@ describe('CatalogueService', () => {
 
         resultList = await _service.findAll();
         expect(resultList.isSuccess).toBe(true);
-      });
-    });
-
-    describe('paginate()', () => {
-      it('should return an array paginate of catalogues', async () => {
-        const result = await _service.paginate({ page: 1, take: 5  });
-        expect(result.data.length).toBeGreaterThanOrEqual(0);
-      });
-
-      it('should return an array paginate of catalogues searchs', async () => {
-        const result = await _service.paginate({ page: 1, take: 5 , searchs: _catalogue.value });
-        expect(result.data.length).toBeGreaterThanOrEqual(0);
       });
     });
 

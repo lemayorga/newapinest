@@ -1,8 +1,8 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Op, Sequelize } from 'sequelize';
+import { PaginationService, RepositoryCrudService } from 'src/shared/services';
+import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/shared/models';
 import { PROVIDER_NAMES } from '../security.provider';
-import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/api/shared/models';
-import { PaginationService, RepositoryCrudService } from 'src/api/shared/services';
 import { Role, User, UsersRoles } from 'src/database/models/security';
 import { RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
 
@@ -79,6 +79,7 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
         [Op.or]:[
           Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.eq]: `${name.toLowerCase()}`  }),
           Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.eq]: `${code.toLowerCase()}`  }),
+          
         ]
       }
     });
@@ -190,8 +191,10 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
        paginationOptions.searchs = {
           where: {
             [Op.or]:[
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-              Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              // Sequelize.where(Sequelize.fn('lower', Sequelize.col('codRol')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
+              Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('name')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
             ]
            }
        };

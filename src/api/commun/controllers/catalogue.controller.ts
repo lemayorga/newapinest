@@ -1,10 +1,9 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, HttpStatus, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RepoResult } from 'src/api/shared/models/repo.interface';
+import { ApiOkResponsePaginated } from 'src/shared/decorators/api-response-paginated';
+import { PageOptionsDto, RepoResult } from 'src/shared/models';
 import { CatalogueCreateDto, CatalogueDto, CatalogueUpdateDto } from '../dtos';
 import { CatalogueService } from '../services';
-import { PageOptionsDto } from 'src/api/shared/models';
-import { ApiOkResponsePaginated } from 'src/api/shared/decorators/api-response-paginated';
 
 @ApiTags('Catalogue')
 @Controller('commun/catalogue')

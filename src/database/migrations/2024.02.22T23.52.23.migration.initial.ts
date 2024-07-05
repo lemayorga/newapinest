@@ -31,8 +31,8 @@ export const up: Migration = async (context: sequelize) => {
 
 export const down: Migration = async (context: sequelize) => {
     await   context.query(`
-	DROP TABLE commun.catalogue;
-	DROP TABLE commun.company;
-	DROP SCHEMA commun;
+	DROP TABLE IF EXISTS commun.catalogue CASCADE;
+	DROP TABLE IF EXISTS ommun.company CASCADE 
+	DROP SCHEMA IF EXISTS commun CASCADE ;
 	`);
 };

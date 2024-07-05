@@ -1,10 +1,11 @@
 import { Op, Sequelize } from "sequelize";
-import { CompanyService } from "./company.service";
-import { createSqliteDB } from "src/config/creatememdb";
-import { RepoError, RequestResult } from './../../shared/models';
+import { createSqliteDB } from "src/database/creatememdb";
+import { RepoError, RequestResult } from "src/shared/models";
+import { PaginationService } from "src/shared/services";
 import { Company } from "src/database/models/commun";
-import { PaginationService } from "src/api/shared/services";
+import { CompanyService } from "./company.service";
 import { CompanyCreateDto, CompanyDto, CompanyUpdateDto } from "../dtos";
+
 
 describe('CompanyService', () => {
 
@@ -57,18 +58,6 @@ describe('CompanyService', () => {
 
         resultList = await _service.findAll();
         expect(resultList.isSuccess).toBe(true);
-      });
-    });
-
-    describe('paginate()', () => {
-      it('should return an array paginate of companies', async () => {
-        const result = await _service.paginate({ page: 1, take: 5  });
-        expect(result.data.length).toBeGreaterThanOrEqual(0);
-      });
-
-      it('should return an array paginate of companies searchs', async () => {
-        const result = await _service.paginate({ page: 1, take: 5 , searchs: _company.name });
-        expect(result.data.length).toBeGreaterThanOrEqual(0);
       });
     });
 

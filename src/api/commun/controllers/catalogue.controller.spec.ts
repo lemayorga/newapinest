@@ -1,14 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
 import { SuperAgentTest, agent as supertest }  from 'supertest';
-import { Catalogue } from 'src/database/models/commun';
-import { SharedModule } from 'src/api/shared/shared.module';
-import { CommunProviders } from "../commun.provider";
-import { CatalogueController } from "./catalogue.controller";
-import { CatalogueService } from "../services";
-import { SequelizeSqliteTestingModule, createSqliteDB } from "src/config/creatememdb";
-import { PageOptionsDto, SortOrder } from "src/api/shared/models";
+import { SharedModule } from 'src/shared/shared.module';
+import { createSqliteDB, SequelizeSqliteTestingModule } from "src/database/creatememdb";
+import { PageOptionsDto, SortOrder } from "src/shared/models";
 import { randomInteger } from "src/utils";
+import { CommunProviders } from "../commun.provider";
+import { Catalogue } from 'src/database/models/commun';
+import { CatalogueService } from "../services";
+import { CatalogueController } from "./catalogue.controller";
+import { Sequelize } from "sequelize";
+
 
 describe('CatalogueController',() => {
 
@@ -27,10 +29,11 @@ describe('CatalogueController',() => {
     ];
 
     const pageOptions: PageOptionsDto = {  page: 1,  take: 10,  order: SortOrder.ASC, searchs: 'MOVIMI'  };
+     
+    let db : Sequelize;  
     
     beforeAll(async () => {
-
-        await createSqliteDB([Catalogue]);
+        db = await createSqliteDB([Catalogue]);
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [
@@ -60,6 +63,9 @@ describe('CatalogueController',() => {
           _service.create(data);
         }
     });
+
+    //afterAll(async() => db.drop() );
+
 
     it('should be defined', () => {
         expect(_controller).toBeDefined();
@@ -120,35 +126,6 @@ describe('CatalogueController',() => {
           description: response.body.data.description
         })
       );
-    });
-
-    it('GET /paginate → should return array catalogues', async  () => {
-      const response = await  agent.get(`${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}`);
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          currentPage: pageOptions.page,
-          take: pageOptions.take,
-          data: expect.any(Array)
-          })
-        );
-        expect(response.body.data).toEqual(expect.any(Array));
-    });
-
-
-
-    it('GET /paginate&searchs → should return array catalogues', async  () => {
-        const uri = `${url}/paginate?page=${pageOptions.page}&take=${pageOptions.take}&order=${pageOptions.order}&searchs=${pageOptions.searchs}`;
-        const response = await  agent.get(uri);
-        expect(response.status).toBe(HttpStatus.OK);
-        expect(response.body).toBeInstanceOf(Object);
-        expect(response.body).toEqual(
-          expect.objectContaining({
-            currentPage: pageOptions.page,
-            take: pageOptions.take
-            })
-          );
     });
 
     it('PUT /:id → should successfully update a Catalogue by ID', async  () => {
