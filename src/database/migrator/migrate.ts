@@ -2,15 +2,16 @@ import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Sequelize } from 'sequelize-typescript';
 import { dataBaseConfig } from './../database.config';
+import { colours } from '../../core/colours';
 const { Umzug, SequelizeStorage } = require('umzug');
 
 const DB_NAME =  `${dataBaseConfig.database}`;
 const DB_USER = `${dataBaseConfig.username}`;
 const sequelize = new Sequelize(dataBaseConfig);
+const ENTORNO = process.env.NODE_ENV;
 
 export const migrator  = new Umzug({
     migrations: {
-    //   glob: ['./src/database/migrations/*.ts', { cwd: __dirname }],
     glob: ['./src/database/migrations/*.ts'],
       resolve: ({ name, path, context }) => {
           const migration = require(path || '')
@@ -103,7 +104,7 @@ function cmdStatus() {
 }
 
 function cmdMigrate() {
-  return migrator .up();
+  return migrator.up();
 }
 
 function cmdSeeders() {
@@ -147,7 +148,7 @@ function cmdHardReset() {
               resolve();
           } catch (e) {
               console.log(e);
-              reject(e);
+              reject(new Error(e));
           }
       });
   });
@@ -156,8 +157,11 @@ function cmdHardReset() {
 const cmd =  (process.argv[2] || '').trim();
 let executedCmd;
 
-console.log(`Execute to database ${DB_NAME}`);
-console.log(`${cmd.toUpperCase()} BEGIN`);
+console.log(colours.BgBlack, colours.FgGreen, `*** Execute in Server: ${dataBaseConfig.host} , Data base: ${dataBaseConfig.database}`, colours.reset); 
+console.log(colours.BgBlack, colours.FgMagenta, `*** NODE_ENV= ${ENTORNO}`, colours.reset); 
+
+console.log(colours.BgBlack, colours.FgGreen, `${cmd.toUpperCase()} BEGIN`, colours.reset); 
+console.log('==============================================================================');
 
 switch (cmd) {
     case 'status':
@@ -200,15 +204,15 @@ switch (cmd) {
 executedCmd
     .then(result => {
         const doneStr = `${cmd.toUpperCase()} DONE`;
-        console.log(doneStr);
-        console.log('==============================================================================');
+        console.log(colours.BgBlack, colours.FgGreen, doneStr, colours.reset) ; 
+        console.log(colours.BgBlack, colours.FgWhite, '==============================================================================', colours.reset);
     })
     .catch(err => {
         const errorStr = `${cmd.toUpperCase()} ERROR`;
-        console.log(errorStr);
-        console.log('==============================================================================');
-        console.log(err);
-        console.log('==============================================================================');
+        console.log(colours.BgBlack, colours.FgRed, errorStr, colours.reset);
+        console.log(colours.BgBlack, colours.FgWhite,'==============================================================================', colours.reset);
+        console.log(colours.BgBlack, colours.FgRed, err, colours.reset);
+        console.log(colours.BgBlack, colours.FgWhite,'==============================================================================', colours.reset);
     })
     .then(() => {
         if (cmd !== 'status' && cmd !== 'reset-hard' && cmd !== 'seed') {
