@@ -5,6 +5,7 @@ import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrd
 import { PROVIDER_NAMES } from '../security.provider';
 import { Role, User, UsersRoles } from 'src/database/models/security';
 import { RolAsignateUsertDto, RolCreateDto, RolDto, RolUpdateDto, RolUserResultDto } from '../dtos';
+import { codeRolSadmin, MENSAJES } from 'src/core';
 
 @Injectable()
 export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto , RolUpdateDto> {
@@ -16,6 +17,15 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
   ){
     super(Role);
   }
+
+  public isRoleSadmin = async (ids: number[]) => {
+    const role = await  this.repositoryRole.findOne({ 
+      where: { 
+        id: { [Op.in] : ids } , codRol: { [Op.eq]: codeRolSadmin  }
+      } 
+    }); 
+    return (role != null && role != undefined);
+  };
 
   public override async create(data: RolCreateDto): RepoResult<RolDto | null> {
     try {
@@ -44,6 +54,10 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
   public override  async updateById(id: number, data: RolUpdateDto): RepoResult<RolDto | null> {
     try {
 
+      if(await this.isRoleSadmin([id])){
+        return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+      }
+
       const { codRol, name } = data;
       const isRoleExists = await this.isRoleExist(codRol,"", id);
       if(isRoleExists){
@@ -64,6 +78,24 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
     }
   }
 
+  public override async deleteById(id: number): RepoResult<boolean> {
+
+    if(await this.isRoleSadmin([ id ])){
+      return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+    }
+
+    return await super.deleteById(id);
+  }
+
+  
+  public override async deleteByIds(ids: string[]): RepoResult<boolean> {
+    const idsRoles = ids.map(x => +x);
+    if(await this.isRoleSadmin(idsRoles)){
+       return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+    }
+
+   return await super.deleteByIds(ids);
+ }
   
  /**
   *  Determinate if role exists 
@@ -102,6 +134,8 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       }
       return RequestResult.ok(null);
 
+     
+
     } catch (ex: any) {
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
@@ -121,21 +155,20 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
   try {
 
     const { uesrIds,  removerData } = data;
-    const _usersRolesExists = await this.getRolesUsers(codeRole, null);
+    let usersRolesExists = await this.getRolesUsers(codeRole, null);
 
-    if(_usersRolesExists.isFailure){
-        throw new Error(_usersRolesExists.message);
+    if(usersRolesExists.isFailure){
+        throw new Error(usersRolesExists.message);
     }
 
     const role = (await this.findByCode(codeRole)).getValue();
-    let usersRolesExists: RolUserResultDto[] = _usersRolesExists.getValue();
 
-    const usersRolesGuardar = uesrIds.filter(userId => !usersRolesExists.map(y => y.idUser).includes(userId))
+    const usersRolesGuardar = uesrIds.filter(userId => !usersRolesExists.data.map(y => y.idUser).includes(userId))
                                           .map(userId => {   return { idUser: userId,   idRol: role.id  } as  UsersRoles  });
 
 
     if(removerData){
-      const usersIdRolesDelete  =  usersRolesExists.filter(ur =>  uesrIds.includes(ur.idUser)).map(ur =>ur.idUser );
+      const usersIdRolesDelete  =  usersRolesExists.data.filter(ur =>  uesrIds.includes(ur.idUser)).map(ur =>ur.idUser );
       await this.repositoryRoleUsersRoles.destroy({ 
         where: { idRol: role.id , idUser: [ ...usersIdRolesDelete ] },
         transaction: transaction
@@ -146,10 +179,10 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
       await this.repositoryRoleUsersRoles.create({  ...userRoleSave },{ transaction: transaction });
     }
 
-    usersRolesExists = (await this.getRolesUsers(codeRole, null)).getValue();
+    usersRolesExists = (await this.getRolesUsers(codeRole, null));
     
     await transaction.commit();
-    return RequestResult.ok(usersRolesExists);
+    return RequestResult.ok(usersRolesExists.data);
 
   } catch (ex: any) {
     Logger.error(ex);

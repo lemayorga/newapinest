@@ -26,7 +26,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       
     } catch (ex: any) {
       Logger.error(ex);
-      return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
+      return RequestResult.fail(new RepoError(ex, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
 

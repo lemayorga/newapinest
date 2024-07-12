@@ -3,9 +3,11 @@ import { Op, Sequelize } from 'sequelize';
 import { RepoResult, RepoError, RequestResult, PageOptionsDto, PageMeta, SortOrder } from 'src/shared/models';
 import { PaginationService, RepositoryCrudService } from 'src/shared/services';
 import { encryptText, compareEncryptText } from 'src/utils';
+import { MENSAJES, userDefault } from 'src/core';
 import { PROVIDER_NAMES } from '../security.provider';
 import { User } from 'src/database/models/security';
 import { ChangePasswordUserDto, UserCreateDto, UserDto, UserUpdateDto } from '../dtos';
+
 
 @Injectable()
 export class UserService  extends RepositoryCrudService<User, UserDto, UserCreateDto , UserUpdateDto> {
@@ -16,6 +18,17 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
   ){
     super(User);
   }
+
+
+  public isUserSadmin = async (ids: number[]) => {
+    const user = await  this.repository.findOne({ 
+      where: { 
+        id: { [Op.in] : ids } , email: userDefault.email 
+      } 
+    }); 
+    return (user != null && user != undefined);
+  };
+
 
   /**
    * Finding user por userName or email
@@ -78,6 +91,10 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
       if (!user) {
         throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
       }
+      
+      if(await this.isUserSadmin([ id ])){
+        return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+      }
 
       await this.repository.update({
         ...data
@@ -95,6 +112,25 @@ export class UserService  extends RepositoryCrudService<User, UserDto, UserCreat
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
+
+  public override async deleteById(id: number): RepoResult<boolean> {
+
+    if(await this.isUserSadmin([ id ])){
+      return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+    }
+
+    return await super.deleteById(id);
+  }
+
+  
+  public override async deleteByIds(ids: string[]): RepoResult<boolean> {
+    const idsRoles = ids.map(x => +x);
+    if(await this.isUserSadmin(idsRoles)){
+       return RequestResult.fail(new RepoError(MENSAJES.OPERATION_INVALID, HttpStatus.FORBIDDEN));
+    }
+
+   return await super.deleteByIds(ids);
+ }
 
   public async changePassword(changePassword: ChangePasswordUserDto): RepoResult<UserDto | null> {
     try{

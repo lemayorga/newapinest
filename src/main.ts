@@ -7,8 +7,6 @@ import { testConnection } from './database/database.provider';
 import { colours } from './core/colours';
 import { Envs } from './config';
 
-
-
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
