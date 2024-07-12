@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { EnvCofigName } from "src/config";
+import { Envs } from "src/config";
 import { JwtPayload } from "../models/jwt-payload.model";
 import { UserService } from "../../security/services";
 import { UserDataRequest } from "../models";
@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: true,
-            secretOrKey: configService.get(EnvCofigName.JWT_SECRET_KEY),
+            secretOrKey: Envs.JWT_REFRESH_SECRET_KEY
         });
     }
 
@@ -26,7 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     
         const { email, userName , roles } = payload;
         const user = await this.userService.findByUserNameOrEmail(userName);
-
 
         if(!user)
          throw new UnauthorizedException('Token not valid.');

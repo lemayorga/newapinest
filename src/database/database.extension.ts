@@ -1,8 +1,5 @@
 import sequelize from "sequelize/types/sequelize";
-//import { Sequelize } from 'sequelize-typescript';
 import { ModelAttributes, QueryInterfaceCreateTableOptions, QueryTypes, TableName } from "sequelize";
-
-
 
 export const testConnection = async(sequelize: sequelize) => {
   try {

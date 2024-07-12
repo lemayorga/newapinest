@@ -1,8 +1,7 @@
-import { Role } from "src/database/models/security";
-
+import { RolUserResultDto } from "src/api/security/dtos";
 export interface UserDataRequest {
     userId: string;
     username: string;
     email: string;
-    roles: Role[];
+    roles:  RolUserResultDto[];
 }

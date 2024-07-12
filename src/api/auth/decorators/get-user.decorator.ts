@@ -1,5 +1,4 @@
 import { createParamDecorator, ExecutionContext, InternalServerErrorException } from "@nestjs/common";
-import { use } from "passport";
 
 export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
 

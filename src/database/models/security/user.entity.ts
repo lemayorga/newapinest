@@ -26,7 +26,7 @@ export class User extends Model<User> {
   @Column({ allowNull: false, type: DataTypes.STRING(100) , validate: {  max: 100 }})
   password: string;
 
-  @Column({ field: 'is_active',  type: DataTypes.BOOLEAN, defaultValue: true , allowNull: false})
+  @Column({ type: DataTypes.BOOLEAN, defaultValue: true , allowNull: false})
   isActive: boolean;
 
   @BelongsToMany(() => Role, () => UsersRoles, 'idUser')

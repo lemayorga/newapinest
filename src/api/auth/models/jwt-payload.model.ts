@@ -1,4 +1,5 @@
-import { Role } from "src/database/models/security";
+import { RolUserResultDto } from "src/api/security/dtos";
+
 
 export interface JwtPayload {
     userId: number,
@@ -8,5 +9,5 @@ export interface JwtPayload {
     lastname: string;
     isActive: boolean;
     iat?: Date;
-    roles?: Role[]
+    roles?: RolUserResultDto[]
 }

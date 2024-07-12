@@ -3,7 +3,7 @@ export class RequestResult<V, E> {
     public isSuccess: boolean;
     public isFailure: boolean;
     private error: E;
-    private data: V;
+    public data: V;
     public message: string;
   
     private constructor(isSuccess: boolean, data: V, error: E, message: string) {
