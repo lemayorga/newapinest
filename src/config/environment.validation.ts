@@ -2,7 +2,7 @@ import { IsString, IsNumber , validateSync, IsEnum} from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { Environment } from './enviroments';
 
-class EnvironmentVariables {
+export class EnvironmentVariables {
 
   @IsEnum(Environment)
   NODE_ENV: Environment;
@@ -16,21 +16,30 @@ class EnvironmentVariables {
   @IsString({ message: 'Invalid APP_TITLE' })
   APP_TITLE: string;
 
+  @IsString({ message: 'Invalid APP_DESCRIPTION' })
+  APP_DESCRIPTION: string;
+
+  @IsNumber()
+  DB_PORT: number;
+
   // **** DataBase
+  @IsString({ message: 'Invalid DIALECT' })
+  DIALECT: string;
+
+  @IsString({ message: 'Invalid DB_HOST' })
+  DB_HOST: string;
+  
+  @IsNumber()
+  APP_PORT: number;
+  
+  @IsString({ message: 'Invalid DB_NAME' })
+  DB_NAME: string;
+
   @IsString({ message: 'Invalid DB_USER' })
   DB_USER: string;
   
   @IsString({ message: 'Invalid DB_PASSWORD' })
   DB_PASSWORD: string;
-
-  @IsString({ message: 'Invalid DB_HOST' })
-  DB_HOST: string;
-
-  @IsString({ message: 'Invalid DB_NAME' })
-  DB_NAME: string;
-
-  @IsNumber()
-  DB_PORT: number;
 
 
   // **** User default
@@ -82,6 +91,7 @@ class EnvironmentVariables {
   @IsString({ message: 'Invalid MAIL_TRANSPORT' })
   MAIL_TRANSPORT: string;
 }
+
 
 export const EnvCofigName = {
   AP_NAME: 'AP_NAME',

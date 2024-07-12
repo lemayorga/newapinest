@@ -2,18 +2,18 @@ import 'dotenv/config';
 import * as dotenv from 'dotenv';
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize';
-import { getEnvPath } from '../config/enviroments';
+import { Envs, getEnvPath } from '../config';
 import { randomInteger } from '../utils';
 
 dotenv.config({ path: getEnvPath() })
 
 export const dataBaseConfig: SequelizeModuleOptions = {
-    dialect: (process.env.DIALECT || 'postgres') as Dialect, 
-    host: `${process.env.DB_HOST}`,
-    port: (+process.env.DB_PORT),
-    username: `${process.env.DB_USER}`,
-    password: `${process.env.DB_PASSWORD}`,
-    database: `${process.env.DB_NAME}`,
+    dialect: (Envs.DIALECT || 'postgres') as Dialect, 
+    host: `${Envs.DB_HOST}`,
+    port: Envs.DB_PORT,
+    username: `${Envs.DB_USER}`,
+    password: `${Envs.DB_PASSWORD}`,
+    database: `${Envs.DB_NAME}`,
     define: {
         freezeTableName: true,
         createdAt: false,
@@ -38,5 +38,3 @@ export const dataBaseTestingConfig: SequelizeModuleOptions = {
         timestamps: false
     },
 };
-
-

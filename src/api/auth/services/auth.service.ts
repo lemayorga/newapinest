@@ -6,16 +6,16 @@ import { UserLoginDto } from "../dtos/user-login.dto";
 import { JwtPayload } from "../models/jwt-payload.model";
 import { UserLoginResponseDto } from "../dtos/user-login-response.dto";
 import { User } from "src/database/models/security";
-import { UserService } from "../../security/services";
+import { RolService, UserService } from "../../security/services";
 import { compareEncryptText } from "src/utils";
-
 @Injectable()
 export class AuthService {
 
   constructor(
     private readonly configService: ConfigService,
     private jwtService: JwtService, 
-    private userService: UserService
+    private userService: UserService,
+    private roleService: RolService
   ) { }
   
   /**
@@ -35,34 +35,52 @@ export class AuthService {
 
       const passwordValid  = await compareEncryptText(password, user.password);
       if (!passwordValid) {
-          throw new HttpException('Invalid email or password.', HttpStatus.BAD_REQUEST);
+          throw new  HttpException('Invalid password, Access Denied', HttpStatus.BAD_REQUEST);
       }
 
-      const token = await this.signToken(user);
-      return new UserLoginResponseDto(user, token.access_token);
+      const tokens  = await this.signToken(user);
+      return new UserLoginResponseDto(user, tokens .access_token, tokens .refresh_token);
   }
 
 
   async signToken(user: User) {
+    const userRole = await this.roleService.getRolesUsers(null, user.id);
 
-    const payload: JwtPayload = {
+    const jwtPayload: JwtPayload = {
       userId: user.id,
       userName: user.username,
       email: user.email,
       firstname: user.firstname,
       lastname: user.lastname,
       isActive: user.isActive,
-      roles: [],
+      roles: userRole.getValue() || [],
     };
 
+   
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync({ ...jwtPayload },{
+        secret: this.configService.get<string>(EnvCofigName.JWT_SECRET_KEY),
+        expiresIn: this.configService.get<string>(EnvCofigName.ACCESS_TOKEN_EXPIRE_MINUTES),
+      }),
+      this.jwtService.signAsync({... jwtPayload }, {
+        secret: this.configService.get<string>(EnvCofigName.JWT_REFRESH_SECRET_KEY),
+        expiresIn:  this.configService.get<string>(EnvCofigName.JWT_REFRESH_SECRET),
+      })
+    ]);
+    
+    return {
+      access_token: at,
+      refresh_token: rt,
+    };
+ /*
     return {
       access_token: await this.jwtService.signAsync({
-        ...payload
+        ...jwtPayload
       },{
         secret: this.configService.get<string>(EnvCofigName.JWT_SECRET_KEY),
         expiresIn: this.configService.get<string>(EnvCofigName.ACCESS_TOKEN_EXPIRE_MINUTES),
       }),
-    };
+    }; */
   }
 
 

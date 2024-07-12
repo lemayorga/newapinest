@@ -56,6 +56,10 @@ export class RolUserResultDto {
     @ApiProperty({  description: 'Rol name' })
     rolName: string;
 
+    @IsNumber()
+    @ApiProperty({  description: 'Id user'  })
+    idUser: number;
+
     @IsString()
     @ApiProperty({ description: 'User name' })
     username: string;

@@ -3,9 +3,6 @@ import { User } from 'src/database/models/security';
 
 export class UserLoginResponseDto  {
     @ApiProperty()
-    token: string;
-
-    @ApiProperty()
     id: number;
 
     @ApiProperty()
@@ -20,9 +17,16 @@ export class UserLoginResponseDto  {
     @ApiProperty()
     lastName: string;
 
-    constructor(user: User, token?: string) {
+    @ApiProperty()
+    token: string;
+    
+    @ApiProperty()
+    refresh_token: string;
+
+    constructor(user: User, token?: string, refresh_token?: string) {
         this.asign(user);
         this.token = token;
+        this.refresh_token = refresh_token;
     }
 
     private asign(user: User) {

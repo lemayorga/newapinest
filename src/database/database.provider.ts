@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { dataBaseConfig } from './database.config';
 import { models as modelsCommun } from './models/commun';
 import { models as modelSecurity } from "./models/security";
+import { colours } from 'src/core';
 
 export const PROVIDER_NAMES = {
   SEQUELIZE: 'SEQUELIZE',
@@ -28,7 +29,7 @@ export const databaseProviders = [
 export async function testConnection() {
   try {
       await sequelize.authenticate();
-      console.log(`Connection to the database "${sequelize.config.database}" has been established successfully.`);
+      console.log(colours.BgBlack, colours.FgGreen,`Connection to the database "${sequelize.config.database}" has been established successfully.` , colours.reset);
   } catch (error) {
       console.error(`Unable to connect to the database "${sequelize.config.database}":`, error);
   }

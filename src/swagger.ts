@@ -1,11 +1,12 @@
 import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { Envs } from "./config";
 
 export function setupSwagger(app: INestApplication) {
     const options = new DocumentBuilder()
-        .setTitle('Nest.js example API')
-        .setDescription('API Documentation')
-        .setVersion('1.0')
+        .setTitle(Envs.APP_TITLE)
+        .setDescription(Envs.APP_DESCRIPTION)
+        .setVersion(Envs.AP_VERSION)
         .addBearerAuth()
         .build();
 

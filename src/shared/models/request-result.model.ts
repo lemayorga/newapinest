@@ -3,7 +3,7 @@ export class RequestResult<V, E> {
     public isSuccess: boolean;
     public isFailure: boolean;
     private error: E;
-    private data: V;
+    public data: V;
     public message: string;
   
     private constructor(isSuccess: boolean, data: V, error: E, message: string) {
@@ -58,12 +58,28 @@ export class RequestResult<V, E> {
   
   type RepoErrorCode = 404 | 500;
   
-  export class RepoError extends Error {
+  export class RepoError /*extends Error **/{
     public code: number;
     public message: string;
-    constructor(message: string, code: number) {
-      super(message);
+    private exception: any;
+
+    constructor(exception: any, code: number) {
+     // super(message);
       this.code = code;
-      this.message = message;
+      this.exception = exception;
+      this.message = this.defineMessageError();
     }
+
+    defineMessageError(): string {
+       if( typeof this.exception === "string")
+         return  this.exception;
+       if(this.exception.message){
+        if(!this.exception.message && this.exception.name === 'SequelizeConnectionRefusedError'){
+          return this.exception.original.errors.map(c => c.message).join(', ');
+        }
+        return  this.exception.message;
+       }
+      
+       return '';
+    }    
   }

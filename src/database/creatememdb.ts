@@ -2,6 +2,7 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { ModelCtor, Sequelize } from "sequelize-typescript";
 import { RolCreateDto } from "src/api/security/dtos";
 import { Role, User, UsersRoles } from "src/database/models/security";
+import { Envs } from "src/config";
 import { encryptText } from "src/utils";
 import { dataBaseTestingConfig } from "./database.config";
 import { codeRolSadmin, rolesDefault, userDefault } from "src/core";
@@ -55,7 +56,7 @@ const createRolesAndUsers = async () => {
         let recordRole =   await Role.create(role as RolCreateDto);
   
         if(recordRole.codRol == codeRolSadmin){
-          const password = await encryptText (`${process.env.DEFAULT_USER_PASSWORD}`);
+          const password = await encryptText (`${Envs.DEFAULT_USER_PASSWORD}`);
           let recordUser = await User.create({
               ...userDefault,
               password

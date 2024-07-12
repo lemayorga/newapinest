@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { getEnvPath } from '../config';
+import { Envs, getEnvPath } from '../config';
 
 dotenv.config({ path: getEnvPath() })
 
@@ -15,14 +15,14 @@ export const rolesDefault = [
 ];
 
 export const userDefault =  {
-    username: `${process.env.DEFAULT_USER}`,
-    email: `${process.env.DEFAULT_USER_EMAIL}`,
-    firstname: `${process.env.DEFAULT_USER}`,
-    lastname: `${process.env.DEFAULT_USER}`,
+    username: `${Envs.DEFAULT_USER}`,
+    email: `${Envs.DEFAULT_USER_EMAIL}`,
+    firstname: `${Envs.DEFAULT_USER}`,
+    lastname: `${Envs.DEFAULT_USER}`,
 };
 
 
 export const userLoginSadmin = {
-    user: `${process.env.DEFAULT_USER_EMAIL}`,
-    password: `${process.env.DEFAULT_USER_PASSWORD}`
+    user: `${Envs.DEFAULT_USER_EMAIL}`,
+    password: `${Envs.DEFAULT_USER_PASSWORD}`
 };
