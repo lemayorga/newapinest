@@ -21,8 +21,6 @@ export class CatalogueService extends RepositoryCrudService<Catalogue, Catalogue
          paginationOptions.searchs = {
              where: {
               [Op.or]:[
-                // Sequelize.where(Sequelize.fn('lower', Sequelize.col('group')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
-                // Sequelize.where(Sequelize.fn('lower', Sequelize.col('value')), {  [Op.like]: `%${options.searchs.toLowerCase()}%`  }),
                 Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('group')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
                 Sequelize.where(Sequelize.fn('unaccent', Sequelize.col('value')), {  [Op.like]: `%${options.searchs.trim()}%`  }),
               ]

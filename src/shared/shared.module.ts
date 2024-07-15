@@ -4,7 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 import { getEnvPath } from 'src/config/enviroments';
 import { PaginationService } from "./services";
 
-
 @Global()
 @Module({
     imports: [ 
@@ -13,7 +12,9 @@ import { PaginationService } from "./services";
             isGlobal: true 
         }),
     ],
-    providers: [ PaginationService  ],
+    providers: [
+         PaginationService
+    ],
     exports: [  PaginationService ]
 })
 export class SharedModule {}

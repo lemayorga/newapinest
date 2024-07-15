@@ -1,11 +1,13 @@
 import { HttpStatus, Logger } from '@nestjs/common';
 import { Model, ModelCtor } from "sequelize-typescript";
 import { IRepo, RepoResult, RepoError, RequestResult } from "../models";
+import { logger } from 'src/pino-logger';
 
 export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implements IRepo<M, T, TC , TU> {
   protected Model!: ModelCtor<M>;
 
-  constructor(Model: ModelCtor<M>) {
+  constructor(
+    Model: ModelCtor<M>) {
       this.Model = Model;
   }
  
@@ -22,10 +24,11 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
         const data = await this.Model.findAll({ raw : true , nest : true , order: orderById });
   
         const result : T[] =  data.map(m =>  Object.assign({}, m) as T);
+
         return RequestResult.ok(result);
-      
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -50,6 +53,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
         return RequestResult.ok(result);
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -78,6 +82,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
         return RequestResult.ok(null);
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -100,6 +105,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
 
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, 500));
     }
   }
@@ -120,6 +126,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
 
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -141,6 +148,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
 
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -161,6 +169,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
 
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -181,6 +190,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
       return RequestResult.ok(result);
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
@@ -213,6 +223,7 @@ export abstract class RepositoryCrudService<M extends Model, T , TC , TU> implem
 
     } catch (ex: any) {
       Logger.error(ex);
+      logger.error(ex)
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }
