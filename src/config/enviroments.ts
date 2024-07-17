@@ -46,7 +46,7 @@ export const Envs  = {
 
 
 export function getEnvPath(): string {
-    const filename: string = `.env${(process.env.NODE_ENV ? ("."  + process.env.NODE_ENV) : "")}`; 
+    const filename: string = `.env${(process.env.NODE_ENV ? ("."  + process.env.NODE_ENV) : "")}`.replace('.development',''); 
     const filePath: string = join(process.cwd(), 'environment', filename);
     return filePath;
 }
