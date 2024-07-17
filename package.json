@@ -26,6 +26,7 @@
     "migrate:create": "node ./src/database/migrator/migrator.js create --f;older ./src/database/migrations --name %npm_config_name%",
     "seed:create": "node ./src/database/migrator/migrator.js create  --folder ./src/database/seeders --name %npm_config_name%",
     "clean-all:w": "rmdir /s /q node_modules; npm run build-clean"
+    
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.9.1",
