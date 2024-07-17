@@ -133,9 +133,6 @@ export class RolService extends RepositoryCrudService<Role, RolDto, RolCreateDto
         return RequestResult.ok(result);
       }
       return RequestResult.ok(null);
-
-     
-
     } catch (ex: any) {
       Logger.error(ex);
       return RequestResult.fail(new RepoError(ex.message, HttpStatus.INTERNAL_SERVER_ERROR));

@@ -10,7 +10,7 @@ import { CompanyCreateDto, CompanyDto, CompanyUpdateDto } from '../dtos';
 export class CompanyService  extends RepositoryCrudService<Company, CompanyDto, CompanyCreateDto , CompanyUpdateDto> {
     constructor(
       @Inject(PROVIDER_NAMES.COMMUN_COMPANY) private readonly repository: typeof Company,
-      private paginationService: PaginationService
+      private paginationService: PaginationService,
     ){
      super(Company);
     }
@@ -49,6 +49,7 @@ export class CompanyService  extends RepositoryCrudService<Company, CompanyDto, 
         }
    
         const result = await this.paginationService.paginante<CompanyDto>(Company, paginationOptions, transform);
+
         return result;
     }
 }
